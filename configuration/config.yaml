@@ -25,6 +25,10 @@ params:
     se: "--stdin -t 1 -A -Q -L"
     pe: "-t 1 -A -Q -L"
 
+  genrich:
+    path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
+    se: "-y -d 150"
+
   # Macs2 params
   macs2:
     callpeak: "--keep-dup all -m 3 30"
@@ -64,9 +68,12 @@ ref:
   egenome_size: 2308125349
 
 options:
+  # Caller: one of "macs" or "genrich"
+  caller: "genrich"
   # get rid of reads mapping in the chrM: True or False.
   no_chrM: False
   # do downsample or not: True or False.
   downsample: False
   # merge replicate samples with IDR: True or False
   idr: False
+  

@@ -31,8 +31,9 @@ SAMPLES_GENOME  = SAMPLES.GENOME
 
 ALL_BAMs        = expand("results/02_bam/{sample}/{sample}.bam", zip, sample = ALL_SAMPLES)
 
-ALL_PEAKANNOT   = expand("results/04_peakAnno/{sample}/{sample}_peaks_logp" + config["params"]["macs2"]["filt_peaks_pval"] + ".annot", zip, sample=ALL_SAMPLES)
-ALL_PEAKS       = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+ALL_PEAKANNOT      = expand("results/04_peakAnno/{sample}/{sample}_peaks_logp" + config["params"]["macs2"]["filt_peaks_pval"] + ".annot", zip, sample=ALL_SAMPLES)
+ALL_PEAKS_MACS     = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+ALL_PEAKS_GENRICH  = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
 
 ALL_QCs         = ["results/01_QCs/multiQC/multiQC_report.html"]
 ALL_FASTQCs     = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", zip, sample=ALL_SAMPLES)
@@ -44,15 +45,29 @@ ALL_BW2SERVER   = expand("results/temp_file_{sample}_{control}.txt",  zip, sampl
 #          RULES          #
 ###########################
 
-rule all:
-    input:
-       ALL_PEAKANNOT + ALL_PEAKS #+ ALL_BIGWIG + ALL_FASTQCs
+if config["options"]["caller"] == "macs":
+    rule all:
+        input:
+            ALL_PEAKANNOT + ALL_PEAKS_MACS + ALL_BIGWIG + ALL_FASTQCs
+
+    rule peaks:
+        input:
+            ALL_PEAKS_MACS
+
+elif config["options"]["caller"] == "genrich":
+    rule all:
+        input:
+            ALL_PEAKANNOT + ALL_PEAKS_GENRICH #+ ALL_BIGWIG + ALL_FASTQCs
+
+    rule peaks:
+        input:
+            ALL_PEAKS_GENRICH
+
 
 rule bams:
     input: ALL_BAMs + ALL_BIGWIG
 
-rule peaks:
-    input: ALL_PEAKS + ALL_BIGWIG
+
 
 rule all_server:
     input:  ALL_BW2SERVER
@@ -62,8 +77,7 @@ include: "rules/functions.smk"
 include: "rules/trimming.smk"
 include: "rules/align.smk"
 include: "rules/bam2bw.smk"
-include: "rules/peaks.smk" #search info about the peak calling with MACS2 in ATACseq data. (Also look at Genrich and HMMRATAC)
-include: "rules/anno.smk"
+include: "rules/macs2_peaks.smk"
 include: "rules/QC.smk"
 # include: "rules/idr.smk"
 # include: "rules/prepare2GEO.smk

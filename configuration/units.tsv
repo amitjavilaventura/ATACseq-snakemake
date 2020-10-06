@@ -1,11 +1,11 @@
 sample	lane	fq1	fq2
-WTplusWNT-rep1	lane1	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_001.fastq.gz	
-WTplusWNT-rep1	lane2	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_002.fastq.gz	
-WTplusWNT-rep1	lane3	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_003.fastq.gz	
-WTplusWNT-rep1	lane4	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_004.fastq.gz	
-WTplusWNT-rep1	lane5	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_005.fastq.gz	
-WTplusWNT-rep1	lane6	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_006.fastq.gz	
-WTplusWNT-rep2	lane1	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/190320_A00302_0059_AH53NCDRXX/Sample_S21754_OrgWTplusWNT_ATAC-rep1b/S21754_OrgWTplusWNT_ATAC-rep1b_S19_L002_R1_001.fastq.gz	
+WTp-rep1	lane1	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_001.fastq.gz	
+WTp-rep1	lane2	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_002.fastq.gz	
+WTp-rep1	lane3	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_003.fastq.gz	
+WTp-rep1	lane4	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_004.fastq.gz	
+WTp-rep1	lane5	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_005.fastq.gz	
+WTp-rep1	lane6	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgWT_plusWNT_ATAC_rep1_S18205/OrgWT_plusWNT_ATAC_rep1_S18205_CGTACT_L008_R1_006.fastq.gz	
+WTp-rep2	lane1	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/190320_A00302_0059_AH53NCDRXX/Sample_S21754_OrgWTplusWNT_ATAC-rep1b/S21754_OrgWTplusWNT_ATAC-rep1b_S19_L002_R1_001.fastq.gz	
 APC-rep1	lane1	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgAPC_ATAC_rep1_S18204/OrgAPC_ATAC_rep1_S18204_GGACTC_L008_R1_001.fastq.gz	
 APC-rep1	lane2	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgAPC_ATAC_rep1_S18204/OrgAPC_ATAC_rep1_S18204_GGACTC_L008_R1_002.fastq.gz	
 APC-rep1	lane3	/hpcnfs/techunits/genomics/PublicData/Pasini/dmangana/FASTQ/180227/Sample_OrgAPC_ATAC_rep1_S18204/OrgAPC_ATAC_rep1_S18204_GGACTC_L008_R1_003.fastq.gz	
