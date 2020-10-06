@@ -3,7 +3,7 @@
 
 # ----- Annotate peaks with peakAnno from ChIPseeker in R ----- #
 rule peakAnnot:
-    input :
+    input:
         rules.filter_peaks.output.bed_filt,
     output:
         annot             = "results/04_peakAnno/{{sample}}/{{sample}}_peaks_logp{pvalue}.annot".format(pvalue = config["params"]["macs2"]["filt_peaks_pval"]),
@@ -21,7 +21,7 @@ rule peakAnnot:
         "Annotating peaks for {wildcards.sample}"
     shell:
         """
-        Rscript --vanilla workflow/scripts/pipeline/peakAnno.R {input.macs2_filt} {params.before} {params.after}   \
+        Rscript --vanilla workflow/scripts/pipeline/peakAnno.R {input} {params.before} {params.after}   \
             {output.annot} {output.promo_bed_targets} {output.promoTargets} {output.promoBed} \
             {output.distalBed} {params.genome} 2> {log}
         """

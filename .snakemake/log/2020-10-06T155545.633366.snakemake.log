@@ -1,0 +1,4 @@
+SyntaxError:
+Not all output, log and benchmark files of rule filter_peaks contain the same wildcards. This is crucial though, in order to avoid that two or more jobs write to the same file.
+  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile", line 61, in <module>
+  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/rules/peaks.smk", line 58, in <module>

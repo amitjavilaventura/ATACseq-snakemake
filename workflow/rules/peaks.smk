@@ -49,7 +49,7 @@ rule filter_peaks:
     input:
         narrow = "results/03_macs2/{sample}/{sample}_peaks.narrowPeak",
     output:
-        bed_filt = "results/03_macs2/{{sample}}_{{control}}/{{sample}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["macs2"]["filt_peaks_pval"])
+        bed_filt = "results/03_macs2/{{sample}}/{{sample}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["macs2"]["filt_peaks_pval"])
     params:
         log_pval_filt = config["params"]["macs2"]["filt_peaks_pval"],
     log:

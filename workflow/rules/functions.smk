@@ -45,4 +45,21 @@ def set_reads(wildcards, input):
 # To get bams for bam2bw
 def get_bam(wildcards):
     return { "case": "results/02_bam/{sample}.bam".format(sample=wildcards.sample) }
-  
+
+
+# ----- Function set_reads_extension() ----- #
+def set_read_extension(wildcards):
+    if is_single_end(wildcards.sample):
+        return "--extendReads " + str(config['bam2bigwig']['read_extension'])
+    return "--extendReads"
+
+# ----- Function set_reads_spike2() ----- #
+def set_reads_spike2(wildcards, input):
+        n = len(input)
+        assert n == 1 or n == 2, "input->sample must have 1 (sample) or 2 (sample + spike) elements"
+        if n == 1:
+            reads = "scripts/bam2bigwig_noSubtract.py"
+            return reads
+        if n == 2:
+            reads = "scripts/bam2bigwig_spike_noSubtract.py --spike {}".format(input.spike)
+            return reads  

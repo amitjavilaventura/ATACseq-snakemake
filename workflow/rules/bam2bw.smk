@@ -1,26 +1,7 @@
 ## BAM2BW
 ## ======
 
-# # ----- From .bam to .bw with bamCoverage ----- #
-# rule bam2bw:
-#     input:
-#         bam = "results/02_bam/{sample}/{sample}.bam"
-#     output:
-#         bw  = "results/02_bigwig/{sample}/{sample}.bw"
-#     params:
-#         normalize = "CPM"
-#     log:
-#         "results/00_log/bam2bw/{sample}_bam2bw.log"
-#     shell:
-#         """
-#         bamCoverage \
-#         -b {input.bam} \
-#         -o {output.bw} \
-#         --normalizeUsing {params.normalize}
-#         """
-
 # ----- .bam to .bigwig with custom Python script (no input subtraction) ----- #
-# python script made by daniel fernandez perez.
 rule bam2bigwig_noSubstract:
     input: 
         unpack(get_bam)
@@ -29,7 +10,7 @@ rule bam2bigwig_noSubstract:
     params: 
         read_exten = set_read_extension,
         reads      = set_reads_spike2,
-        params     = config["bam2bigwig"]["other"]
+        params     = config["params"]["bam2bigwig"]["other"]
     log: 
         "results/00_log/bam2bw/{sample}_bigwig.bam2bw"
     threads: 

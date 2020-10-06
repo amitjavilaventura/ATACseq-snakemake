@@ -12,12 +12,16 @@ singularity: "/hpcnfs/data/DP/Singularity/dfernandezperez-bioinformatics-singula
 # ----- Configfile ----- #
 configfile: "configuration/config.yaml"
 
+# ----- CLUSTER FILE ----- #
+# variable for the cluster file 
+CLUSTER     = yaml.load(open(config['cluster'], 'r'), Loader=yaml.FullLoader)
 
+# Determine files for samples and units
 SAMPLES     = pd.read_csv(config['samples'], sep = "\t").set_index("NAME", drop=False).sort_index()
 units       = pd.read_csv(config['units'], dtype=str, sep = "\t").set_index(["sample", "lane"], drop=False).sort_index()
 units.index = units.index.set_levels([i.astype(str) for i in units.index.levels])  # enforce str in index
 
-
+# ----- Get the samples name, input, etc ----- #
 ALL_SAMPLES  = SAMPLES.NAME
 ALL_CONTROLS = SAMPLES.INPUT
 SAMPLES_GENOME  = SAMPLES.GENOME
@@ -42,7 +46,7 @@ ALL_BW2SERVER   = expand("results/temp_file_{sample}_{control}.txt",  zip, sampl
 
 rule all:
     input:
-       ALL_PEAKANNOT + ALL_PEAKS + ALL_BIGWIG + ALL_FASTQCs
+       ALL_PEAKANNOT + ALL_PEAKS #+ ALL_BIGWIG + ALL_FASTQCs
 
 rule bams:
     input: ALL_BAMs + ALL_BIGWIG
