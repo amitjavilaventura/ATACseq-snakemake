@@ -12,6 +12,15 @@ samples: configuration/samples.tsv
 # Parameters for submitting jobs to cluster via qsub
 cluster: configuration/cluster.yaml
 
+# Prefix to temporary
+# Some files -such as fastq- occupy a lot of space. To avoid space problems during the processing of the pipelines
+# we can use the temporary scratch of hpcnfs or the scratch directory of each node.
+# Just write the prefix-path where you want to put those files, or write '.' to have them in the workdir.
+# By now just fastq files will be located in this folder
+# IMPORTANT: if you have running multiple snakemake pipelines with the same tmp folder all the fastq files will be located togeter. Care with the sample names to not be repeated.
+tmp: /hpcnfs/scratch/temporary/.amitjavila/atacseq
+
+
 # Parameters for the software used
 params:
 
@@ -73,10 +82,15 @@ ref:
 options:
   # Caller: one of "macs" or "genrich"
   peakcaller: "genrich"
+  ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
+  # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
+  genrich_merge: False
   # get rid of reads mapping in the chrM: True or False.
   no_chrM: False
   # do downsample or not: True or False.
   downsample: False
   # merge replicate samples with IDR: True or False
   idr: False
+
+  
   

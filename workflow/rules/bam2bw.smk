@@ -12,7 +12,7 @@ rule bam2bigwig_noSubstract:
         reads      = set_reads_spike2,
         params     = config["params"]["bam2bigwig"]["other"]
     log: 
-        "results/00_log/bam2bw/{sample}_bigwig.bam2bw"
+        "results/00_log/bam2bw/{sample}_bigwig_noSubtract.bam2bw"
     threads: 
         CLUSTER["bam2bigwig"]["cpu"]
     message: 

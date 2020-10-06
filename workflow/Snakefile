@@ -28,13 +28,14 @@ SAMPLES_GENOME  = SAMPLES.GENOME
 
 
 # ----- Determine output files ----- #
-ALL_BAMs         = expand("results/02_bam/{sample}/{sample}.bam", zip, sample = ALL_SAMPLES)
+ALL_BAMs         = expand("results/02_bam/{sample}.bam", zip, sample = ALL_SAMPLES)
 
 ALL_QCs          = ["results/01_QCs/multiQC/multiQC_report.html"]
 ALL_FASTQCs      = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", zip, sample=ALL_SAMPLES)
 
-ALL_BIGWIG       = expand("results/02_bigwig/noSubtract/{sample}/{sample}.bw", zip, sample=ALL_SAMPLES)
-ALL_BIGWIG_noSub = expand("results/02_bigwig/noSubtract/{sample}/{sample}.bw", zip, sample=ALL_SAMPLES)
+ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", zip, sample=ALL_SAMPLES)
+ALL_BIGWIG_noSub = expand("results/02_bigwig/noSubtract/{sample}.bw", zip, sample=ALL_SAMPLES)
+
 ALL_BW2SERVER    = expand("results/temp_file_{sample}_{control}.txt",  zip, sample = ALL_SAMPLES, control = ALL_CONTROLS)
 
 if config["options"]["peakcaller"] == "macs":
@@ -52,7 +53,7 @@ elif config["options"]["peakcaller"] == "genrich":
 
 
 rule all:
-    input: ALL_PEAKS + ALL_PEAKANNOT + ALL_BIGWIG_noSub #+ ALL_BIGWIG #+ ALL_FASTQCs #+ ALL_QCs
+    input: ALL_PEAKS + ALL_PEAKANNOT + ALL_FASTQCs + ALL_QCs #+ ALL_BIGWIG_noSub #+ ALL_BIGWIG
 
 rule peaks:
     input: ALL_PEAKS

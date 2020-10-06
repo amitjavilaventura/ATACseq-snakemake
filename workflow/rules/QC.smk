@@ -17,17 +17,18 @@ def get_trimmed_forward(wildcards):
     # single end sample
     return "fastq/{sample}.se.fastq".format(**wildcards)
 
+
 # ----- FASTQC ----- #
 rule fastqc:
     input:  
         get_trimmed_forward,
     output: 
-        "results/01_qc/fastQC/{sample}_fastqc.zip"
+        "results/01_QCs/fastQC/{sample}_fastqc.zip"
     log:    
         "results/00_log/fastQC/{sample}.log"
     params:
-        folder_name = "results/01_qc/fastQC/",
-        tmp = "results/01_qc/fastQC/{sample}.fastq"
+        folder_name = "results/01_QCs/fastQC/",
+        tmp = "results/01_QCs/fastQC/{sample}.fastq"
     threads: 3
     message: 
         "Running fastqc for {input}"
@@ -43,12 +44,12 @@ rule fastqc:
 #     input: 
 #         "results/02_bam/{sample}/{sample}.bam"
 #     output:
-#         "results/01_qc/phantom_peak_qual/{sample}.spp.out"
+#         "results/01_QCs/phantom_peak_qual/{sample}.spp.out"
 #     log:
 #         "results/00_log/phantom_peak_qual/{sample}_phantompeakqual.log"
 #     threads: 3
 #     params:
-#         out_dir = "results/01_qc/phantom_peak_qual/"
+#         out_dir = "results/01_QCs/phantom_peak_qual/"
 #     message:
 #         "Running phantompeakqual for {wildcards.sample}"
 #     shell:
@@ -63,8 +64,8 @@ rule fastqc:
 #     input:
 #         "results/02_bam/{sample}/{sample}.bam"
 #     output:
-#         txt="results/01_qc/insert_size/{sample}.isize.txt",
-#         pdf="results/01_qc/insert_size/{sample}.isize.pdf"
+#         txt="results/01_QCs/insert_size/{sample}.isize.txt",
+#         pdf="results/01_QCs/insert_size/{sample}.isize.pdf"
 #     log:
 #         "results/00_log/picard/insert_size/{sample}.log"
 #     params:
@@ -96,9 +97,9 @@ rule fastqc:
 #     input: 
 #         case      = "results/02_bam/{sample}/{sample}.bam", 
 #     output: 
-#         qualMetrics = "results/01_qc/fingerPrint/{sample}.qualityMetrics.tsv",
-#         raw_counts  = "results/01_qc/fingerPrint/{sample}.rawcounts.tsv",
-#         plot        = "results/01_qc/fingerPrint/{sample}.plot.pdf",
+#         qualMetrics = "results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv",
+#         raw_counts  = "results/01_QCs/fingerPrint/{sample}.rawcounts.tsv",
+#         plot        = "results/01_QCs/fingerPrint/{sample}.plot.pdf",
 #     log:
 #         "results/00_log/plotFingerprint/{sample}.log"
 #     params:
@@ -118,13 +119,13 @@ rule fastqc:
 #         bam = "results/02_bam/{sample}/{sample}.bam",
 #         bed = rules.filter_peaks.output.macs2_filt
 #     output: 
-#         pdf      = "results/01_qc/GCbias/{sample}_GCbias.pdf",
-#         freq_txt = "results/01_qc/GCbias/{sample}_GCbias.txt"
+#         pdf      = "results/01_QCs/GCbias/{sample}_GCbias.pdf",
+#         freq_txt = "results/01_QCs/GCbias/{sample}_GCbias.txt"
 #     log:
 #         "results/00_log/GCbias/{sample}_GCbias.log"
 #     params:
 #         repeatMasker = config["ref"]['rep_masker'],
-#         tempBed      = "results/01_qc/GCbias/{sample}_Repeatmasker.bed.tmp",
+#         tempBed      = "results/01_QCs/GCbias/{sample}_Repeatmasker.bed.tmp",
 #         bit_file     = config["ref"]["2bit"],
 #         egenome_size = config["ref"]["egenome_size"]
 #     threads: 5
@@ -148,38 +149,77 @@ rule fastqc:
 #         """
 
 # ---------------- MultiQC report ----------------- #
-rule multiQC_inputs:
-    input:
-        expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
-        expand("results/01_qc/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
-        #expand("results/01_qc/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
-        #expand("results/01_qc/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
-        expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
-        #expand("results/01_qc/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
-        #expand("results/01_qc/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
-        expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES)
-    output: 
-        file = "results/01_qc/multiQC/multiQC_inputs.txt"
-    message:
-        "create file containing all multiqc input files"
-    run:
-        with open(output.file, 'w') as outfile:
-            for fname in input:
-                    outfile.write(fname + "\n")
 
-rule multiQC:
-    input:
-        "results/01_qc/multiQC/multiQC_inputs.txt"
-    output: 
-        "results/01_qc/multiQC/multiQC_report.html"
-    params:
-        log_name = "multiQC_report",
-        folder   = "results/01_qc/multiQC"
-    log:
-        "results/00_log/multiQC/multiQC.log"
-    message:
-        "multiQC for all logs"
-    shell:
-        """
-        multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
-        """
+if config["options"]["peakcaller"] == "macs":
+    rule multiQC_inputs:
+        input:
+            expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
+            expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
+            #expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
+            #expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
+            expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
+            #expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
+            #expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
+            expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES)
+        output: 
+            file = "results/01_QCs/multiQC/multiQC_inputs.txt"
+        message:
+            "create file containing all multiqc input files"
+        run:
+            with open(output.file, 'w') as outfile:
+                for fname in input:
+                        outfile.write(fname + "\n")
+
+    rule multiQC:
+        input:
+            "results/01_QCs/multiQC/multiQC_inputs.txt"
+        output: 
+            "results/01_QCs/multiQC/multiQC_report.html"
+        params:
+            log_name = "multiQC_report",
+            folder   = "results/01_QCs/multiQC"
+        log:
+            "results/00_log/multiQC/multiQC.log"
+        message:
+            "multiQC for all logs"
+        shell:
+            """
+            multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
+            """
+
+elif config["options"]["peakcaller"] == "genrich":
+    rule multiQC_inputs:
+        input:
+            expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
+            expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
+            #expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
+            #expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
+            expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
+            #expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
+            #expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
+            #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
+        output: 
+            file = "results/01_QCs/multiQC/multiQC_inputs.txt"
+        message:
+            "create file containing all multiqc input files"
+        run:
+            with open(output.file, 'w') as outfile:
+                for fname in input:
+                        outfile.write(fname + "\n")
+
+    rule multiQC:
+        input:
+            "results/01_QCs/multiQC/multiQC_inputs.txt"
+        output: 
+            "results/01_QCs/multiQC/multiQC_report.html"
+        params:
+            log_name = "multiQC_report",
+            folder   = "results/01_QCs/multiQC"
+        log:
+            "results/00_log/multiQC/multiQC.log"
+        message:
+            "multiQC for all logs"
+        shell:
+            """
+            multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
+            """

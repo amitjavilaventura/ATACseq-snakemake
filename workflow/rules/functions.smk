@@ -43,8 +43,8 @@ def set_reads(wildcards, input):
 
 
 
-### FUNCTIONS FOR RULE BAM2BW ###
-### ========================= ###
+### FUNCTIONS FOR RULE BAM2BW NO SUBTRACT ###
+### ===================================== ###
 # ----- Function get_bam() ----- #
 # To get bams for bam2bw
 def get_bam(wildcards):

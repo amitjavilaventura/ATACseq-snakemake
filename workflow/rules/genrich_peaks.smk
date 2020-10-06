@@ -37,8 +37,5 @@ rule genrich:
 		echo 'This peaks have been called using {params.pe}, and a pvalue threshold of {params.pvalue} and a qvalue threshold of {params.qval}' > {params.readme}
 		"""
 
-# ----- Filter peaks from .narrowPeak files ----- #
-
-rule filter_peaks_genrich:
 
 	

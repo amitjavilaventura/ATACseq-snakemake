@@ -6,8 +6,8 @@ rule align:
     input:
         get_trimmed,
     output:
-        bam = "results/02_bam/{sample}/{sample}.bam",
-        bai = "results/02_bam/{sample}/{sample}.bam.bai",
+        bam = "results/02_bam/{sample}.bam",
+        bai = "results/02_bam/{sample}.bam.bai",
     threads: 10
     params:
         index  = config["ref"]["index"],
