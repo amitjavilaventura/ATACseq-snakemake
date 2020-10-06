@@ -1,3 +1,0 @@
-SyntaxError in line 124 of /hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/rules/peaks.smk:
-Unexpected keyword if in rule definition (peaks.smk, line 124)
-  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile", line 78, in <module>

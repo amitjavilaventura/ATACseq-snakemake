@@ -1,3 +1,0 @@
-NameError in line 59 of /hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile:
-name 'ALL_PEAKS_GENRICH' is not defined
-  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile", line 59, in <module>

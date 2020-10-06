@@ -1,4 +1,0 @@
-CreateRuleException in line 5 of /hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/rules/anno.smk:
-The name peakAnnot is already used by another rule
-  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile", line 80, in <module>
-  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/rules/anno.smk", line 5, in <module>
