@@ -28,6 +28,8 @@ params:
   genrich:
     path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
     se: "-y -d 150"
+    qval: 0.001
+    pval: 0.0001
 
   # Macs2 params
   macs2:

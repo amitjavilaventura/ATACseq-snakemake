@@ -28,7 +28,6 @@ SAMPLES_GENOME  = SAMPLES.GENOME
 
 
 # ----- Determine output files ----- #
-
 ALL_BAMs        = expand("results/02_bam/{sample}/{sample}.bam", zip, sample = ALL_SAMPLES)
 
 ALL_PEAKANNOT      = expand("results/04_peakAnno/{sample}/{sample}_peaks_logp" + config["params"]["macs2"]["filt_peaks_pval"] + ".annot", zip, sample=ALL_SAMPLES)
@@ -78,6 +77,7 @@ include: "rules/trimming.smk"
 include: "rules/align.smk"
 include: "rules/bam2bw.smk"
 include: "rules/macs2_peaks.smk"
+include: "rules/genrich_peaks.smk"
 include: "rules/QC.smk"
 # include: "rules/idr.smk"
 # include: "rules/prepare2GEO.smk
