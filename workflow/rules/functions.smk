@@ -41,6 +41,10 @@ def set_reads(wildcards, input):
             reads = config["params"]["bowtie"]["pe"] + " -1 {} -2 {}".format(*input)
             return reads
 
+
+
+### FUNCTIONS FOR RULE BAM2BW ###
+### ========================= ###
 # ----- Function get_bam() ----- #
 # To get bams for bam2bw
 def get_bam(wildcards):

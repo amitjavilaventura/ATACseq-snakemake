@@ -76,8 +76,8 @@ if (file.size(input) == 0){
 
   # Filter annotared bed file to obtain promoter target genes, bed files from peaks overlaping with promoters/distal regions and the coordinates of the promoter target genes.
   #  promo and distal peaks: coordinates of peaks that are linked to a gene (promo = promoter peaks; distal = all non promoter peaks) + the name of the (nearest) gene. 
-  distal.peaks <- annot %>% subset(annotation != "Promoter") %>% dplyr::select(c("seqnames", "start", "end", "V4", "V5", "ENSEMBL", "SYMBOL")) 
-  promo.peaks <- annot %>% subset(annotation == "Promoter") %>% dplyr::select(c("seqnames", "start", "end", "V4", "V5", "ENSEMBL", "SYMBOL")) 
+  distal.peaks <- annot %>% subset(annotation != "Promoter") %>% dplyr::select(c("seqnames", "start", "end", "V4", "V5", "V6", "ENSEMBL", "SYMBOL")) 
+  promo.peaks <- annot %>% subset(annotation == "Promoter") %>% dplyr::select(c("seqnames", "start", "end", "V4", "V5", "V6", "ENSEMBL", "SYMBOL")) 
   #Genes (and their cordinates) with a peak in the promoter. 
   promo.targets.bed <-  annot %>% subset(annotation == "Promoter") %>% 
     dplyr::select(c("seqnames", "geneStart", "geneEnd", "ENSEMBL", "SYMBOL", "geneStrand")) %>% 

@@ -28,8 +28,9 @@ params:
   genrich:
     path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
     se: "-y -d 150"
-    qval: 0.001
-    pval: 0.0001
+    p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
+    pqval: 0.0001 #q- or p- value that will be use as threshold (depends on p_or_q param)
+    filt_peaks_pqval: "5" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
 
   # Macs2 params
   macs2:
@@ -71,7 +72,7 @@ ref:
 
 options:
   # Caller: one of "macs" or "genrich"
-  caller: "genrich"
+  peakcaller: "genrich"
   # get rid of reads mapping in the chrM: True or False.
   no_chrM: False
   # do downsample or not: True or False.

@@ -1,0 +1,10 @@
+Building DAG of jobs...
+MissingInputException in line 54 of /hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile:
+Missing input files for rule all:
+results/02_bigwig/bCAT-rep1b/bCAT-rep1b.bw
+results/02_bigwig/APC-rep2/APC-rep2.bw
+results/02_bigwig/bCAT-rep1/bCAT-rep1.bw
+results/02_bigwig/WTp-rep2/WTp-rep2.bw
+results/02_bigwig/WTp-rep1/WTp-rep1.bw
+results/02_bigwig/bCAT-rep1c/bCAT-rep1c.bw
+results/02_bigwig/APC-rep1/APC-rep1.bw
