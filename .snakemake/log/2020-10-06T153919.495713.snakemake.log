@@ -1,0 +1,4 @@
+NameError in line 30 of /hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/rules/bam2bw.smk:
+name 'set_read_extension' is not defined
+  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/Snakefile", line 60, in <module>
+  File "/hpcnfs/scratch/DP/amitjavila/amitjavila/pipelines/development/atacseq_snakemake/workflow/rules/bam2bw.smk", line 30, in <module>

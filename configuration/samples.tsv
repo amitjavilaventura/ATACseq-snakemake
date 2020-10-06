@@ -1,0 +1,8 @@
+NAME	INPUT	SPIKE	AB	USER	GENOME	RUN	CONDITION	CELLTYPE
+WTplusWNT-rep1	FALSE	FALSE	X	dmangana	mm10	180227	WTplusWNT	organoids
+WTplusWNT-rep2	FALSE	FALSE	X	dmangana	mm10	190320	WTplusWNT	organoids
+APC-rep1	FALSE	FALSE	X	dmangana	mm10	180227	APC	organoids
+APC-rep2	FALSE	FALSE	X	dmangana	mm10	190320	APC	organoids
+bCAT-rep1	FALSE	FALSE	X	dmangana	mm10	180309/180323	bCAT	organoids
+bCAT-rep1b	FALSE	FALSE	X	dmangana	mm10	190320	bCAT	organoids
+bCAT-rep1c	FALSE	FALSE	X	dmangana	mm10	190320	bCAT	organoids
