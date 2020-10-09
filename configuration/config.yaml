@@ -18,8 +18,12 @@ cluster: configuration/cluster.yaml
 # Just write the prefix-path where you want to put those files, or write '.' to have them in the workdir.
 # By now just fastq files will be located in this folder
 # IMPORTANT: if you have running multiple snakemake pipelines with the same tmp folder all the fastq files will be located togeter. Care with the sample names to not be repeated.
-tmp: /hpcnfs/scratch/temporary/.amitjavila/atacseq
+tmp: /hpcnfs/scratch/temporary/.snakemake_atac
 
+# perform trimming: false or true
+# if true go to params (at the end)
+# to set desired trimming parameters
+trimming: false
 
 # Parameters for the software used
 params:
@@ -29,9 +33,13 @@ params:
     global: "--chunkmbs 1024 -m 1 --best -S --no-unal -q"
     pe: "-I 10 -X 1000"
 
-  # Fastp params
+  samtools:
+    # Memory used by every core of samtools (GB). Be careful that 
+    # memory x threads is not bigger than the amount of memory assigned to align rule
+    memory: 2
+
   fastp:
-    se: "--stdin -t 1 -A -Q -L"
+    se: "-t 1 -A -Q -L"
     pe: "-t 1 -A -Q -L"
 
   genrich:
@@ -81,7 +89,7 @@ ref:
 
 options:
   # Caller: one of "macs" or "genrich"
-  peakcaller: "genrich"
+  peakcaller: "macs"
   ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
   # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
   genrich_merge: False

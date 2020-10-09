@@ -4,15 +4,17 @@
 # Sorting and indexing with samtools
 rule align:
     input:
-        get_trimmed,
+        get_fq,
     output:
         bam = "results/02_bam/{sample}.bam",
         bai = "results/02_bam/{sample}.bam.bai",
-    threads: 10
+    threads:
+        CLUSTER["align"]["cpu"]
     params:
-        index  = config["ref"]["index"],
-        bowtie = config["params"]["bowtie"]["global"],
-        reads  = set_reads,
+        index        = config["ref"]["index"],
+        bowtie       = config["params"]["bowtie"]["global"],
+        reads        = set_reads,
+        samtools_mem = config["params"]["samtools"]["memory"],
     log:
         align   = "results/00_log/align/{sample}_align.log",
         rm_dups = "results/00_log/align/{sample}_rm-dup.log",
@@ -22,7 +24,7 @@ rule align:
         bowtie -p {threads} {params.bowtie} {params.index} {params.reads} 2> {log.align} \
         | samblaster --removeDups 2> {log.rm_dups} \
         | samtools view -Sb -F 4 - \
-        | samtools sort -m 5G -@ {threads} -T {output.bam}.tmp -o {output.bam} - 2>> {log.align}
+        | samtools sort -m {params.samtools_mem}G -@ {threads} -T {output.bam}.tmp -o {output.bam} - 2>> {log.align}
         samtools index {output.bam} 2> {log.index}
         """
 
