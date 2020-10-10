@@ -76,9 +76,9 @@ if config["options"]["peakcaller"] == "genrich":
 					"""
 
 	## Merging more than one replicate in the same peak calling step
-	if config["options"]["genrich_merge"] == True:
+	elif config["options"]["genrich_merge"] == True:
 
-		rule genrich:
+		rule genrich_merge:
 			input:
 				lambda w: expand("results/02_bam/{sample}.bam", sample = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
 			output:
