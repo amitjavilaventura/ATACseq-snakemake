@@ -4,8 +4,8 @@ rule get_fastq_pe:
     input:
         get_fastq,
     output:
-        fastq1 = temp("fastq/{sample}-{lane}.r1.fq"),
-        fastq2 = temp("fastq/{sample}-{lane}.r2.fq"),
+        fastq1 = temp("results/fastq/{sample}-{lane}.r1.fastq.gz"),
+        fastq2 = temp("results/fastq/{sample}-{lane}.r2.fastq.gz")
     message:   
         "Copying .fastq files for {wildcards.sample}-{wildcards.lane}"
     shell:
@@ -13,6 +13,7 @@ rule get_fastq_pe:
         ln -s {input[0]} {output.fastq1}
         ln -s {input[1]} {output.fastq2}
         """
+
 rule get_fastq_se:
     input:
         get_fastq,
@@ -25,49 +26,85 @@ rule get_fastq_se:
         ln -s {input} {output}
         """
 
-# ----- Merging the different lanes from the .fastq files and trimming with fastp ----- #
-rule fastp_trim_pe:
+# ----- Merging the different lanes from the .fastq files ----- #
+rule mergeFastq_pe:
     input:
-        fw = lambda wildcards: expand("fastq/{row.sample}-{row.lane}.r1.fq", row=units.loc[wildcards.sample].itertuples()),
-        rv = lambda wildcards: expand("fastq/{row.sample}-{row.lane}.r2.fq", row=units.loc[wildcards.sample].itertuples())
+        fw = lambda w: expand("results/fastq/{lane.sample}-{lane.lane}.r1.fastq.gz", lane=units.loc[w.sample].itertuples()),
+        rv = lambda w: expand("results/fastq/{lane.sample}-{lane.lane}.r2.fastq.gz", lane=units.loc[w.sample].itertuples())
     output:
-	    fastq1 = temp("results/fastq/{sample}.r1.fastq"),
-	    fastq2 = temp("results/fastq/{sample}.r2.fastq")
+        fastq1 = temp("{tmp}/fastq/{{sample}}.r1.fastq.gz".format(tmp=config["tmp"])),
+        fastq2 = temp("{tmp}/fastq/{{sample}}.r2.fastq.gz".format(tmp=config["tmp"]))
     log:
-        "results/00_log/fastp/{sample}_trim.log",
-    threads: 3
-    params:
-        fastp_params = config["params"]["fastp"]["pe"],
-        tmp_fw       = "results/fastq/{sample}.1.fastq.tmp.gz",
-        tmp_rv       = "results/fastq/{sample}.2.fastq.tmp.gz"
+        "results/00log/fastp/{sample}.log"
     message:
-        "Processing fastq files from {input}"
+        "Merging fastq files from {input}"
     shell:
         """
-		cat {input.fw} > {params.tmp_fw}
-		cat {input.rv} > {params.tmp_rv}
-		fastp -i {params.tmp_fw} \
-		-I {params.tmp_rv} \
-		-o {output.fastq1} \
-		-O {output.fastq2} \
-		-w {threads} \
-		{params.fastp_params} 2> {log}
+        cat {input.fw} > {output.fastq1}
+        cat {input.rv} > {output.fastq2}
         """
+
+
+rule mergeFastq_se:
+    input:
+        lambda w: expand("results/fastq/{lane.sample}-{lane.lane}.fastq.gz", lane=units.loc[w.sample].itertuples()),
+    output:
+        temp("{tmp}/fastq/{{sample}}.se.fastq.gz".format(tmp=config["tmp"]))
+    log:
+        "results/00log/fastp/{sample}.log"
+    message:
+        "Merging fastq files from {input}"
+    shell:
+        """
+        cat {input} > {output}
+        """
+
+# ----- Trimming with fastp (optional) ----- #
+rule fastp_trim_pe:
+    input:
+        fw = "{tmp}/fastq/{{sample}}.r1.fastq.gz".format(tmp=config["tmp"]),
+        rv = "{tmp}/fastq/{{sample}}.r2.fastq.gz".format(tmp=config["tmp"])
+    output:
+        fastq1 = temp("{tmp}/fastq/trimmed/{{sample}}.r1.fastq.gz".format(tmp=config["tmp"])),
+        fastq2 = temp("{tmp}/fastq/trimmed/{{sample}}.r2.fastq.gz".format(tmp=config["tmp"]))
+    log:
+        "results/00_log/fastp/{sample}_trim.log",
+    threads: 
+        CLUSTER["fastp_trim_pe"]["cpu"]
+    params:
+        fastp_params = config["params"]["fastp"]["pe"],
+    message:
+        "Processing fastq files from {input}"
+    shadow:
+        "minimal"
+    shell:
+        """
+        fastp -i {input.fw} \
+        -I {input.rv} \
+        -o {output.fastq1} \
+        -O {output.fastq2} \
+        -w {threads} \
+        {params.fastp_params} 2> {log}
+        """
+
 rule fastp_trim_se:
-	input:
-		lambda w: expand("results/fastq/{row.sample}-{row.lane}.fastq.gz", row=units.loc[w.sample].itertuples()),
-	output:
-		temp("results/fastq/{sample}.se.fastq")
-	log:
-		"results/00_log/fastp/{sample}_trim.log"
-	threads: 5
-	params:
-		fastp_params = config["params"]["fastp"]["se"],
-	message:
-		"Processing fastq files from {input}"
-	shell:
-		"""
-		zcat {input} | \
-		fastp -o {output} \
-		-w {threads} {params.fastp_params} 2> {log}
-		"""
+    input:
+        "{tmp}/fastq/{{sample}}.se.fastq.gz".format(tmp=config["tmp"])
+    output:
+        temp("{tmp}/fastq/trimmed/{{sample}}.se.fastq.gz".format(tmp=config["tmp"]))
+    log:
+        "results/00_log/fastp/{sample}_trim.log"
+    threads:
+        CLUSTER["fastp_trim_se"]["cpu"]
+    params:
+        fastp_params = config["params"]["fastp"]["se"],
+    message:
+        "Processing fastq files from {input}"
+    shadow:
+        "minimal"
+    shell:
+        """
+        fastp -i {input} \
+        -o {output} \
+        -w {threads} {params.fastp_params} 2> {log}
+        """

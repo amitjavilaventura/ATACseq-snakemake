@@ -1,26 +1,29 @@
+# cpu default values for most rules are set to 1 to give preference to the alignments and not saturate the cluster.
+# Most of those rules are just QC or not very important for the final output of peaks. If desired it can be changed to increase the pipeline speed.
+
 __default__ :
     cpu         : 1
     email       : "`whoami`@ieo.it"
     EmailNotice : "a"
     jname       : "{rule}"
-    output      : ".clusterLogs/{rule}.{wildcards}.out"
-    error       : ".clusterLogs/{rule}.{wildcards}.err"
-    MaxMem      : 10
+    output      : "results/.clusterLogs/{rule}.{wildcards}.out"
+    error       : "results/.clusterLogs/{rule}.{wildcards}.err"
+    MaxMem      : 8
 
-fastp_se :
-    cpu : 5
+fastp_trim_se :
+    cpu : 1
 
-fastp_pe :
-    cpu : 5
+fastp_trim_pe :
+    cpu : 1
 
 geo_fastp_se :
-    cpu : 5
+    cpu : 1
 
 geo_fastp_pe :
-    cpu : 5
+    cpu : 1
 
 fastqc:
-    cpu : 5
+    cpu : 1
 
 align:
     cpu : 10
@@ -31,25 +34,28 @@ align_spike:
     MaxMem : 40
 
 phantom_peak_qual:
-    cpu : 5
+    cpu : 1
 
 plotFingerprint:
-    cpu : 5
+    cpu : 1
 
 bam2bigwig:
-    cpu : 10
+    cpu : 1
     MaxMem : 10
 
 bam2bigwig_noSubstract:
-    cpu : 10
+    cpu : 1
     MaxMem : 10
 
-call_peaks:
+macs2_callpeak:
     EmailNotice: "ae"
     cpu : 1
 
+idr:
+    cpu : 1
+    MaxMem : 16
 GC_bias:
-    cpu : 5
+    cpu : 1
     MaxMem : 40
 
 multiQC:

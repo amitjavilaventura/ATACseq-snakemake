@@ -12,29 +12,29 @@ if config["options"]["peakcaller"] == "macs":
     # Call peaks
     rule macs2_callpeak:
         input:
-            case = "results/02_bam/{sample}/{sample}.bam",
+            "results/02_bam/{sample}.bam",
         output:
             narrow = "results/03_macs2/{sample}/{sample}_peaks.narrowPeak",
             xls    = "results/03_macs2/{sample}/{sample}_peaks.xls"
         params:
             callpeak = config["params"]["macs2"]["callpeak"],
+            pvalue   = config["params"]["macs2"]["pvalue"],
             gsize    = config["params"]["macs2"]["gsize"],
             pe       = lambda w: "--format BAM --nomodel --extsize 200 --shift -100" if is_single_end(w.sample) else "--format BAMPE",
             outdir   = "results/03_macs2/{sample}/",
-            name     = "{sample}",
-        threads: 5
+        threads:
+            CLUSTER["macs2_callpeak"]["cpu"]
         log:
             "results/00_log/macs2/{sample}_macs2.log"
         shell:
             """
-            macs2 callpeak \
-            --treatment {input.case} \
-            --outdir {params.outdir} \
-            {params.callpeak} \
-            {params.pe} --extsize 200 --shift -100 \
-            --gsize {params.gsize} \
-            --name {params.name} \
-            -p 1e-5 2> {log} 
+            macs2 callpeak {params.pe} \
+                --treatment {input} \
+                --gsize {params.gsize} \
+                --outdir {params.outdir} \
+                --name {wildcards.sample} \
+                --pvalue {params.pvalue} \
+                {params.callpeak} 2> {log} 
             """
 
 

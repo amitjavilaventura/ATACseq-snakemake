@@ -7,21 +7,30 @@
  
 ## Copied from DANI's ChIP-seq pipeline from here on. 
 
-# ----- Function get_trimmed_forward(). ----- #
+# ----- Function get_fq_forward(). ----- #
 # This function will return the forward read, in the case of Paired-End, in order to analize it with fastqc. 
 # To use as input for the "rule fastqc" when updating the pipeline to differentiate single-end and paired-end. Now it is only for PE.
-def get_trimmed_forward(wildcards):
-    if not is_single_end(**wildcards):
-        # paired-end sample
-        return "fastq/{sample}.r1.fastq".format(**wildcards)
-    # single end sample
-    return "fastq/{sample}.se.fastq".format(**wildcards)
+# Get raw or trimmed reads based on trimming configuration. Used for fastqc
+def get_fq_forward(wildcards):
+    if config["trimming"]:
+        if not is_single_end(**wildcards):
+            # paired-end sample
+            return "{tmp}/fastq/trimmed{sample}.1.fastq.gz".format(**wildcards, tmp = config["tmp"])
+        # single end sample
+        return "{tmp}/fastq/trimmed{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
+    else:
+        # no trimming, use raw reads
+        if not is_single_end(**wildcards):
+            # paired-end sample
+            return "{tmp}/fastq/{sample}.1.fastq.gz".format(**wildcards, tmp = config["tmp"])
+        # single end sample
+        return "{tmp}/fastq/{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
 
 
 # ----- FASTQC ----- #
 rule fastqc:
     input:  
-        get_trimmed_forward,
+        get_fq_forward,
     output: 
         "results/01_QCs/fastQC/{sample}_fastqc.zip"
     log:    
@@ -29,7 +38,8 @@ rule fastqc:
     params:
         folder_name = "results/01_QCs/fastQC/",
         tmp = "results/01_QCs/fastQC/{sample}.fastq"
-    threads: 3
+    threads:
+        CLUSTER["fastqc"]["cpu"]
     message: 
         "Running fastqc for {input}"
     shell:
@@ -40,47 +50,48 @@ rule fastqc:
 
 
 # # ------- PhantomPeakQual ------- #
-# rule phantom_peak_qual:
-#     input: 
-#         "results/02_bam/{sample}/{sample}.bam"
-#     output:
-#         "results/01_QCs/phantom_peak_qual/{sample}.spp.out"
-#     log:
-#         "results/00_log/phantom_peak_qual/{sample}_phantompeakqual.log"
-#     threads: 3
-#     params:
-#         out_dir = "results/01_QCs/phantom_peak_qual/"
-#     message:
-#         "Running phantompeakqual for {wildcards.sample}"
-#     shell:
-#         """
-#         /opt/miniconda2/bin/Rscript --vanilla scripts/run_spp_nodups.R \
-#         -c={input[0]} -savp -rf -p={threads} -odir={params.out_dir}  -out={output} -tmpdir={params.out_dir}  2> {log}
-#         """
+rule phantom_peak_qual:
+    input: 
+        "results/02_bam/{sample}/{sample}.bam"
+    output:
+        "results/01_QCs/phantom_peak_qual/{sample}.spp.out"
+    log:
+        "results/00_log/phantom_peak_qual/{sample}_phantompeakqual.log"
+    threads:
+        CLUSTER["phantom_peak_qual"]["cpu"]
+    params:
+        out_dir = "results/01_QCs/phantom_peak_qual/"
+    message:
+        "Running phantompeakqual for {wildcards.sample}"
+    shell:
+        """
+        /opt/miniconda2/bin/Rscript --vanilla scripts/run_spp_nodups.R \
+        -c={input[0]} -savp -rf -p={threads} -odir={params.out_dir}  -out={output} -tmpdir={params.out_dir}  2> {log}
+        """
 
 
 # # ------- InsertSize calculation ------- #
-# rule insert_size:
-#     input:
-#         "results/02_bam/{sample}/{sample}.bam"
-#     output:
-#         txt="results/01_QCs/insert_size/{sample}.isize.txt",
-#         pdf="results/01_QCs/insert_size/{sample}.isize.pdf"
-#     log:
-#         "results/00_log/picard/insert_size/{sample}.log"
-#     params:
-#         # optional parameters (e.g. relax checks as below)
-#         "VALIDATION_STRINGENCY=LENIENT "
-#         "METRIC_ACCUMULATION_LEVEL=null "
-#         "METRIC_ACCUMULATION_LEVEL=SAMPLE"
-#     shell:
-#         """
-#         # Create the outfiles to handle
-#         touch {output}
-#         picard CollectInsertSizeMetrics {params} \
-#         INPUT={input} OUTPUT={output.txt} \
-#         HISTOGRAM_FILE={output.pdf} > {log}
-#         """
+rule insert_size:
+    input:
+        "results/02_bam/{sample}/{sample}.bam"
+    output:
+        txt="results/01_QCs/insert_size/{sample}.isize.txt",
+        pdf="results/01_QCs/insert_size/{sample}.isize.pdf"
+    log:
+        "results/00_log/picard/insert_size/{sample}.log"
+    params:
+        # optional parameters (e.g. relax checks as below)
+        "VALIDATION_STRINGENCY=LENIENT "
+        "METRIC_ACCUMULATION_LEVEL=null "
+        "METRIC_ACCUMULATION_LEVEL=SAMPLE"
+    shell:
+        """
+        # Create the outfiles to handle
+        touch {output}
+        picard CollectInsertSizeMetrics {params} \
+        INPUT={input} OUTPUT={output.txt} \
+        HISTOGRAM_FILE={output.pdf} > {log}
+        """
 
 # # # ----- Function set_read_extension() ----- #
 # # # This function will be used as parameter for the rule plotFingerprint.
@@ -93,26 +104,27 @@ rule fastqc:
 # #     return "--extendReads"
 
 # # ------- Deeptools quality control ------- #
-# rule plotFingerprint:
-#     input: 
-#         case      = "results/02_bam/{sample}/{sample}.bam", 
-#     output: 
-#         qualMetrics = "results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv",
-#         raw_counts  = "results/01_QCs/fingerPrint/{sample}.rawcounts.tsv",
-#         plot        = "results/01_QCs/fingerPrint/{sample}.plot.pdf",
-#     log:
-#         "results/00_log/plotFingerprint/{sample}.log"
-#     params:
-#         read_exten = "--extendReads",
-#     threads: 3
-#     shell:
-#         """
-#         plotFingerprint -b {input} \
-#         -p {threads} \
-#         --outQualityMetrics {output.qualMetrics} \
-#         --outRawCounts {output.raw_counts} \
-#         --plotFile {output.plot}
-#         """
+rule plotFingerprint:
+    input: 
+        case      = "results/02_bam/{sample}/{sample}.bam", 
+    output: 
+        qualMetrics = "results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv",
+        raw_counts  = "results/01_QCs/fingerPrint/{sample}.rawcounts.tsv",
+        plot        = "results/01_QCs/fingerPrint/{sample}.plot.pdf",
+    log:
+        "results/00_log/plotFingerprint/{sample}.log"
+    params:
+        read_exten = "--extendReads",
+    threads:
+        CLUSTER["phantom_peak_qual"]["cpu"]
+    shell:
+        """
+        plotFingerprint -b {input} \
+        -p {threads} \
+        --outQualityMetrics {output.qualMetrics} \
+        --outRawCounts {output.raw_counts} \
+        --plotFile {output.plot}
+        """
 
 # rule GC_bias:
 #     input: 
@@ -155,11 +167,11 @@ if config["options"]["peakcaller"] == "macs":
         input:
             expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
             expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
-            #expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
-            #expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
+            expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
+            expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
             expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
-            #expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
-            #expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
+            expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
+            expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
             expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES)
         output: 
             file = "results/01_QCs/multiQC/multiQC_inputs.txt"
@@ -192,11 +204,11 @@ elif config["options"]["peakcaller"] == "genrich":
         input:
             expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
             expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
-            #expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
-            #expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
+            expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
+            expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
             expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
-            #expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
-            #expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
+            expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
+            expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
             #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
         output: 
             file = "results/01_QCs/multiQC/multiQC_inputs.txt"

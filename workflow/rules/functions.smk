@@ -11,20 +11,30 @@ def get_fastq(wildcards):
 def is_single_end(sample):
     return pd.isnull(units.loc[(sample), "fq2"][0])
 
-# ----- Function get_trimmed() ----- #
+# ----- Function get_fq() ----- #
+# Get raw or trimmed reads based on trimming configuration.
 # It has to be used as {input} of the rule align.
-# If the function "is_single_end()" is not true, it will be a paired-end sample and get_trimmed() will return a list where there are two strings: 
+# If the function "is_single_end()" is not true, it will be a paired-end sample and get_fq() will return a list where there are two strings: 
 #   the first string will be the forward read and the second string will be the reverse read. 
 # In the case of a single-end sample, the list will contain only one string.
 # To make this work, the {params.pe} has to change to {params.reads}, which will be the output of the function "set_reads()": reads = set_reads.
 # When using this, the arguments "-1 {input.fw} -2 {input.rv}" in the shell command have to be deleted, because they are included in the function set_reads().
-# When using this, the {input.fw} and {input.rv} have to be substituted by "get_trimmed"
-def get_trimmed(wildcards):
-    if not is_single_end(**wildcards):
-        # Paired-end sample
-        return expand("fastq/{sample}.{group}.fastq", group=["r1", "r2"], **wildcards)
-    # Single-end sample
-    return "fastq/{sample}.se.fastq".format(**wildcards)
+# When using this, the {input.fw} and {input.rv} have to be substituted by "get_fq"
+def get_fq(wildcards):
+    if config["trimming"]:
+        if not is_single_end(**wildcards):
+            # paired-end sample
+            return expand("{tmp}/fastq/trimmed{sample}.{group}.fastq.gz", group=[1, 2], **wildcards, tmp = config["tmp"])
+        # single end sample
+        return "{tmp}/fastq/trimmed{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
+    else:
+        # no trimming, use raw reads
+        if not is_single_end(**wildcards):
+            # paired-end sample
+            return expand("{tmp}/fastq/{sample}.{group}.fastq.gz", group=[1, 2], **wildcards, tmp = config["tmp"])
+        # single end sample
+        return "{tmp}/fastq/{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
+
 
 # ----- Function set_reads() ----- #
 # To use as one of the params in align.
