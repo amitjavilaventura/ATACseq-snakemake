@@ -22,9 +22,11 @@ units       = pd.read_csv(config['units'], dtype=str, sep = "\t").set_index(["sa
 units.index = units.index.set_levels([i.astype(str) for i in units.index.levels])  # enforce str in index
 
 # ----- Get the samples name, input, etc ----- #
-ALL_SAMPLES  = SAMPLES.NAME
-ALL_CONTROLS = SAMPLES.INPUT
-SAMPLES_GENOME  = SAMPLES.GENOME
+ALL_SAMPLES    = SAMPLES.NAME
+ALL_CONTROLS   = SAMPLES.INPUT
+SAMPLES_GENOME = SAMPLES.GENOME
+
+ALL_CONDITIONS = SAMPLES.CONDITION
 
 
 # ----- Determine output files ----- #
@@ -41,10 +43,16 @@ if config["options"]["peakcaller"] == "macs":
     ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_logp" + config["params"]["macs2"]["filt_peaks_pval"] + ".annot", zip, sample=ALL_SAMPLES)
     
 elif config["options"]["peakcaller"] == "genrich":
-    ALL_PEAKS      = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
-    ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
+    if config["options"]["genrich_merge"] == False:
+        ALL_PEAKS      = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+        ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
+
+    elif config["options"]["genrich_merge"] == True:
+        ALL_PEAKS      = expand("results/03_genrich/{condition}/{condition}_peaks.narrowPeak", zip, sample=ALL_CONDITIONS)
+        ALL_PEAKANNOT  = expand("results/04_peakAnno/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_CONDITIONS)
     
 
+"results/03_genrich/{condition}/{condition}_peaks.narrowPeak"
 #-----------------------------------------------------------------------------------------------------------------------
 # Local rules are rules that won't be submitted to the scheduler but executed in the current session (front-end or node)
 #-----------------------------------------------------------------------------------------------------------------------
@@ -55,7 +63,7 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks, all, all_server
 # Define multiple outputs based on the output files desired
 #-----------------------------------------------------------------------------------------------------------------------
 rule all:
-    input: ALL_PEAKANNOT + ["results/0x_IDR/APC.txt"]
+    input: ALL_PEAKANNOT #+ ["results/0x_IDR/APC.txt"]
 
 rule peaks:
     input: ALL_PEAKS

@@ -89,16 +89,17 @@ ref:
 
 options:
   # Caller: one of "macs" or "genrich"
-  peakcaller: "macs"
+  peakcaller: "genrich"
   ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
   # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
-  genrich_merge: False
+  genrich_merge: True
+  # merge replicate samples with IDR when calling peaks with macs2: True or False
+  idr: False
   # get rid of reads mapping in the chrM: True or False.
   no_chrM: False
   # do downsample or not: True or False.
   downsample: False
-  # merge replicate samples with IDR: True or False
-  idr: False
+
 
   
   
