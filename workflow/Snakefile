@@ -70,6 +70,7 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks, all, all_server
 #-----------------------------------------------------------------------------------------------------------------------
 # Define multiple outputs based on the output files desired
 #-----------------------------------------------------------------------------------------------------------------------
+
 # rule all:
 #     input: ALL_PEAKANNOT
 

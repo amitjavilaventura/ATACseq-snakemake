@@ -51,7 +51,7 @@ rule mergeFastq_se:
     output:
         temp("{tmp}/fastq/{{sample}}.se.fastq.gz".format(tmp=config["tmp"]))
     log:
-        "results/00log/fastp/{sample}.log"
+        "results/00_log/fastp/{sample}.log"
     message:
         "Merging fastq files from {input}"
     shell:
