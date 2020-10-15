@@ -48,39 +48,33 @@ if config["options"]["peakcaller"] == "genrich":
 				#rm {input}  
 				"""
 
-		# filter peaks by p value
-		if config["params"]["genrich"]["p_or_q"] == "p":
-			rule filter_peaks:
-				input:
-					narrow = "results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
-				output:
-					bed_filt = "results/03_genrich/{{sample}}/{{sample}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"])
-				params:
-					log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
-				log:
-					"results/00_log/genrich/{sample}_genrich_filt_peaks.log"
-				shell:
-					"""
-					awk "\$8 >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
-					"""
 
-		# filter peaks by qvalue
-		elif config["params"]["genrich"]["p_or_q"] == "q":
-			rule filter_peaks:
-				input:
-					narrow = "results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
-				output:
-					bed_filt = "results/03_genrich/{{sample}}/{{sample}}_peaks_q{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"])
-				params:
-					log_pqval_filt = config["params"]["genrich"]["filt_peaks_qval"],
-				log:
-					"results/00_log/genrich/{sample}_genrich_filt_peaks.log"
-				shell:
-					"""
-					awk "\$9 >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
-					"""
-				pq    = config["params"]["genrich"]["p_or_q"]
+		pq    = config["params"]["genrich"]["p_or_q"]
 		pqval = config["params"]["genrich"]["filt_peaks_pqval"]
+
+		# filter peaks by p or q value
+		rule filter_peaks:
+			input:
+				narrow = "results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
+			output:
+				bed_filt = "results/03_genrich/{{sample}}/{{sample}}_peaks_{p_or_q}{pqvalue}.bed".format(pqvalue = config["params"]["genrich"]["filt_peaks_pqval"], p_or_q = config["params"]["genrich"]["p_or_q"])
+			params:
+				log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
+				column_pqval   = lambda w: "8" if config["params"]["genrich"]["p_or_q"]=="p" else "9",
+				readme         = "results/03_genrich/readme.txt",
+				p_or_q         = config["params"]["genrich"]["p_or_q"],
+				pq_filt        = config["params"]["genrich"]["filt_peaks_pqval"]
+			log:
+				"results/00_log/genrich/{sample}_genrich_filt_peaks.log"
+			shell:
+				"""
+				awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
+
+				echo '
+				Genrich narrowpeaks were filtered using a -log10({params.p_or_q}value) threshold of {params.pq_filt}' \
+				>> {params.readme}
+				"""
+
 
 		# annotate peaks as promoter and distal
 		rule peakAnnot:
@@ -97,7 +91,7 @@ if config["options"]["peakcaller"] == "genrich":
 				after  = config["promoter"]["aTSS"],
 				genome = lambda wildcards: SAMPLES.GENOME[wildcards.sample]
 			log: 
-				"results/00_log/peakAnnot/{sample}_peakanot.log"
+				"results/00_log/peakAnnot/{sample}_peakanot_genrich.log"
 			message:
 				"Annotating peaks for {wildcards.sample}"
 			shell:

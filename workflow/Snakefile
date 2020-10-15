@@ -26,7 +26,7 @@ ALL_SAMPLES    = SAMPLES.NAME
 ALL_CONTROLS   = SAMPLES.INPUT
 SAMPLES_GENOME = SAMPLES.GENOME
 
-ALL_CONDITIONS = SAMPLES.CONDITION
+ALL_CONDITIONS = set(SAMPLES.CONDITION)
 
 
 # ----- Determine output files ----- #
@@ -38,15 +38,16 @@ ALL_FASTQCs      = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample=AL
 ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", sample=ALL_SAMPLES)
 ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample = ALL_SAMPLES)
 
-if config["options"]["peakcaller"] == "macs":
+if config["options"]["peakcaller"] == "macs2":
 
     if config["options"]["idr_merge"] == False:
         ALL_PEAKS      = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
-        ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_logp" + config["params"]["macs2"]["filt_peaks_pval"] + ".annot", zip, sample=ALL_SAMPLES)
+        ALL_PEAKS_FILT = expand("results/03_macs2/{sample}/{sample}_peaks_" + config["params"]["macs2"]["p_or_q"] + config["params"]["macs2"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
+        ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["macs2"]["p_or_q"] + config["params"]["macs2"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
         
     elif config["options"]["idr_merge"] == False:
         ALL_PEAKS      = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
-        # ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_logp" + config["params"]["macs2"]["filt_peaks_pval"] + ".annot", zip, sample=ALL_SAMPLES)
+        # ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_logp" + config["params"]["macs2"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
         ALL_IDR        = expand("results/0x_IDR/{condition}.txt", zip, condition=ALL_CONDITIONS)
         
 
@@ -54,10 +55,12 @@ elif config["options"]["peakcaller"] == "genrich":
 
     if config["options"]["genrich_merge"] == False:
         ALL_PEAKS      = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+        ALL_PEAKS_FILT = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
         ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
 
     elif config["options"]["genrich_merge"] == True:
         ALL_PEAKS      = expand("results/03_genrich/{condition}/{condition}_peaks.narrowPeak", zip, sample=ALL_CONDITIONS)
+        ALL_PEAKS_FILT = expand("results/03_genrich/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
         ALL_PEAKANNOT  = expand("results/04_peakAnno/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_CONDITIONS)
     
 
