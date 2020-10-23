@@ -108,14 +108,14 @@ if config["options"]["peakcaller"] == "genrich":
 
 		rule genrich_merge:
 			input:
-				lambda w: expand("results/02_bam/{sample}.bam", sample = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
+				lambda w: expand("results/02_bam/{condition}.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
 			output:
-				"results/03_genrich/{condition}/{condition}_peaks.narrowPeak",
+				"results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 			params:
 				# path to genrich
 				genrich = config["params"]["genrich"]["path"],
 				# pe/se parameters
-				pe      = lambda w: config["params"]["genrich"]["se"] if is_single_end(w.sample) else "",
+				pe_se   = lambda w: config["params"]["genrich"]["se"] if config["params"]["genrich"]["pe_or_se"] == "se" else "",
 				# pvalue/qvalue threshold
 				p_or_q  = config["params"]["genrich"]["p_or_q"],
 				pqval   = config["params"]["genrich"]["pqval"],
@@ -130,40 +130,28 @@ if config["options"]["peakcaller"] == "genrich":
 				-t {input} \
 				-o {output} \
 				-{params.p_or_q} {params.pqval} \
-				{params.pe} 2>> {log}
+				{params.pe_se} 2>> {log}
 
-				echo 'This peaks have been called using different replicates fore each condition, the parameters {params.pe} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
+				echo 'This peaks have been called using more than one replicate for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
 				"""
 
-		if config["params"]["genrich"]["p_or_q"] == "p":
-			rule filter_peaks:
-				input:
-					narrow = "results/03_genrich/{condition}/{condition}_peaks.narrowPeak",
-				output:
-					bed_filt = "results/03_genrich/{{condition}}/{{condition}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"])
-				params:
-					log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
-				log:
-					"results/00_log/genrich/{condition}_genrich_filt_peaks.log"
-				shell:
-					"""
-					awk "\$8 >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
-					"""
-
-		elif config["params"]["genrich"]["p_or_q"] == "q":
-			rule filter_peaks:
-				input:
-					narrow = "results/03_genrich/{condition}/{condition}_peaks.narrowPeak",
-				output:
-					bed_filt = "results/03_genrich/{{condition}}/{{condition}}_peaks_q{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"])
-				params:
-					log_pqval_filt = config["params"]["genrich"]["filt_peaks_qval"],
-				log:
-					"results/00_log/genrich/{condition}_genrich_filt_peaks.log"
-				shell:
-					"""
-					awk "\$9 >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
-					"""
+		rule filter_peaks:
+			input:
+				narrow = "results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
+			output:
+				bed_filt = "results/03_genrich/merged/{{condition}}/{{condition}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"])
+			params:
+				log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
+				column_pqval   = lambda w: "8" if config["params"]["genrich"]["p_or_q"]=="p" else "9",
+				readme         = "results/03_genrich/readme.txt",
+				p_or_q         = config["params"]["genrich"]["p_or_q"],
+				pq_filt        = config["params"]["genrich"]["filt_peaks_pqval"]
+			log:
+				"results/00_log/genrich/{condition}_genrich_filt_peaks.log"
+			shell:
+				"""
+				awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
+				"""
 
 
 		# ----- Annotate peaks with peakAnno from ChIPseeker in R ----- #

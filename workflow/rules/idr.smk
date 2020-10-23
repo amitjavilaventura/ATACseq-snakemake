@@ -6,7 +6,7 @@ if config["options"]["idr_merge"] == True:
         input:
             lambda w: expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", sample = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME)
         output:
-            "results/0x_IDR/{condition}.txt"
+            "results/03_macs2/IDR/{condition}.txt"
         threads:
             CLUSTER["idr"]["cpu"]
         params:

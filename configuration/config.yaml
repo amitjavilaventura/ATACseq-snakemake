@@ -44,7 +44,8 @@ params:
 
   genrich:
     path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
-    se: "-y -d 150"
+    pe_or_se: "se"  # wether the samples are single-end or paired end. One of "se" or "pe"
+    se: "-y -d 150" # parameters for peak calling if samples are single-end
     p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
     pqval: 5e-4 #q- or p- value that will be use as threshold (depends on p_or_q param)
     filt_peaks_pqval: "4" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
@@ -90,7 +91,7 @@ ref:
 
 options:
   # Caller: one of "macs2" or "genrich"
-  peakcaller: "Genrich"
+  peakcaller: "genrich"
   ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
   # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
   genrich_merge: True

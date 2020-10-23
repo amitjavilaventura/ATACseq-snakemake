@@ -48,7 +48,7 @@ if config["options"]["peakcaller"] == "macs2":
     elif config["options"]["idr_merge"] == False:
         ALL_PEAKS      = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
         # ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_logp" + config["params"]["macs2"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
-        ALL_IDR        = expand("results/0x_IDR/{condition}.txt", zip, condition=ALL_CONDITIONS)
+        ALL_IDR        = expand("results/03_macs2/IDR/{condition}.txt", zip, condition=ALL_CONDITIONS)
         
 
 elif config["options"]["peakcaller"] == "genrich":
@@ -59,9 +59,9 @@ elif config["options"]["peakcaller"] == "genrich":
         ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
 
     elif config["options"]["genrich_merge"] == True:
-        ALL_PEAKS      = expand("results/03_genrich/{condition}/{condition}_peaks.narrowPeak", zip, sample=ALL_CONDITIONS)
-        ALL_PEAKS_FILT = expand("results/03_genrich/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
-        ALL_PEAKANNOT  = expand("results/04_peakAnno/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_CONDITIONS)
+        ALL_PEAKS      = expand("results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+        ALL_PEAKS_FILT = expand("results/03_genrich/merged/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
+        ALL_PEAKANNOT  = expand("results/04_peakAnno/merged/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, condition=ALL_CONDITIONS)
     
 
 #-----------------------------------------------------------------------------------------------------------------------
