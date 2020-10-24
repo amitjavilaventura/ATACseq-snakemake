@@ -45,7 +45,7 @@ if config["options"]["peakcaller"] == "macs2":
 
 
     # ----- Filter peaks from .narrowPeak files ----- #
-    rule filter_peaks:
+    rule filter_peaks_macs:
             input:
                 narrow = "results/03_macs2/{sample}/{sample}_peaks.narrowPeak",
             output:
@@ -72,7 +72,7 @@ if config["options"]["peakcaller"] == "macs2":
     pqval = config["params"]["macs2"]["filt_peaks_pqval"]
 
     # ----- Annotate peaks with peakAnno from ChIPseeker in R ----- #
-    rule peakAnnot:
+    rule peakAnnot_macs:
         input:
             rules.filter_peaks.output.bed_filt,
         output:

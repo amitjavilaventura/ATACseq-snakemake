@@ -67,7 +67,7 @@ elif config["options"]["peakcaller"] == "genrich":
 #-----------------------------------------------------------------------------------------------------------------------
 # Local rules are rules that won't be submitted to the scheduler but executed in the current session (front-end or node)
 #-----------------------------------------------------------------------------------------------------------------------
-localrules: get_fastq_se, get_fastq_pe, filter_peaks, all, all_server
+localrules: get_fastq_se, get_fastq_pe, filter_peaks_macs, filter_peaks_genrich, filter_peaks_genrich_merge, peaks, bams, all, all_server
 
 
 #-----------------------------------------------------------------------------------------------------------------------

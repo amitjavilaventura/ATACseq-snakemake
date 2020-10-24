@@ -53,7 +53,7 @@ if config["options"]["peakcaller"] == "genrich":
 		pqval = config["params"]["genrich"]["filt_peaks_pqval"]
 
 		# filter peaks by p or q value
-		rule filter_peaks:
+		rule filter_peaks_genrich:
 			input:
 				narrow = "results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
 			output:
@@ -77,9 +77,9 @@ if config["options"]["peakcaller"] == "genrich":
 
 
 		# annotate peaks as promoter and distal
-		rule peakAnnot:
+		rule peakAnnot_genrich:
 			input:
-				rules.filter_peaks.output.bed_filt,
+				rules.filter_peaks_genrich.output.bed_filt,
 			output:
 				annot             = "results/04_peakAnno/{{sample}}/{{sample}}-peaks_log{p_or_q}{pqvalue}.annot".format(pqvalue = pqval, p_or_q = pq),
 				promo_bed_targets = "results/04_peakAnno/{{sample}}/{{sample}}-peaks_log{p_or_q}{pqvalue}_promoTargets.bed".format(pqvalue = pqval, p_or_q = pq),
@@ -108,7 +108,8 @@ if config["options"]["peakcaller"] == "genrich":
 
 		rule genrich_merge:
 			input:
-				lambda w: expand("results/02_bam/{condition}.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
+				bams   = lambda w: expand("results/02_bam/{condition}.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
+				readme = "results/03_genrich/merged/{condition}/readme.txt"
 			output:
 				"results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 			params:
@@ -120,22 +121,22 @@ if config["options"]["peakcaller"] == "genrich":
 				p_or_q  = config["params"]["genrich"]["p_or_q"],
 				pqval   = config["params"]["genrich"]["pqval"],
 				# readme file
-				readme  = "results/03_genrich/readme.txt",
+				readme  = "results/03_genrich/merged/readme.txt",
 			threads: 5
 			log:
-				"results/00_log/genrich/{condition}_peakcalling.log",
+				"results/00_log/genrich_merge/{condition}_peakcalling.log",
 			shell:
 				"""
 				{params.genrich} -j \
-				-t {input} \
+				-t {input.bams:q} \
 				-o {output} \
 				-{params.p_or_q} {params.pqval} \
 				{params.pe_se} 2>> {log}
 
-				echo 'This peaks have been called using more than one replicate for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
+				echo 'This peaks have been called using more than 1 replicates ({input.bams}) for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {input.readme}
 				"""
 
-		rule filter_peaks:
+		rule filter_peaks_genrich_merge:
 			input:
 				narrow = "results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 			output:
@@ -147,7 +148,7 @@ if config["options"]["peakcaller"] == "genrich":
 				p_or_q         = config["params"]["genrich"]["p_or_q"],
 				pq_filt        = config["params"]["genrich"]["filt_peaks_pqval"]
 			log:
-				"results/00_log/genrich/{condition}_genrich_filt_peaks.log"
+				"results/00_log/genrich_merge/{condition}_genrich_filt_peaks.log"
 			shell:
 				"""
 				awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
@@ -158,9 +159,9 @@ if config["options"]["peakcaller"] == "genrich":
 		pq    = config["params"]["genrich"]["p_or_q"]
 		pqval = config["params"]["genrich"]["filt_peaks_pqval"]
 
-		rule peakAnnot:
+		rule peakAnnot_genrich_merge:
 			input:
-				rules.filter_peaks.output.bed_filt,
+				rules.filter_peaks_genrich_merge.output.bed_filt,
 			output:
 				annot             = "results/04_peakAnno/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}.annot".format(pqvalue = pqval, p_or_q = pq),
 				promo_bed_targets = "results/04_peakAnno/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}_promoTargets.bed".format(pqvalue = pqval, p_or_q = pq),
