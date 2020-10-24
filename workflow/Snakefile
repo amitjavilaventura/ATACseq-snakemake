@@ -30,13 +30,13 @@ ALL_CONDITIONS = set(SAMPLES.CONDITION)
 
 
 # ----- Determine output files ----- #
-ALL_BAMs         = expand("results/02_bam/{sample}.bam", sample = ALL_SAMPLES)
+ALL_BAMs         = expand("results/02_bam/{sample}.bam", sample=ALL_SAMPLES)
 
 ALL_QCs          = ["results/01_QCs/multiQC/multiQC_report.html"]
 ALL_FASTQCs      = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample=ALL_SAMPLES)
 
 ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", sample=ALL_SAMPLES)
-ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample = ALL_SAMPLES)
+ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
 
 if config["options"]["peakcaller"] == "macs2":
 
@@ -74,8 +74,8 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks_macs, filter_peaks_genrich,
 # Define multiple outputs based on the output files desired
 #-----------------------------------------------------------------------------------------------------------------------
 
-# rule all:
-#     input: ALL_PEAKANNOT
+rule all:
+    input: ALL_PEAKANNOT + ALL_PEAKS + ALL_PEAKS_FILT
 
 rule peaks:
     input: ALL_PEAKS
