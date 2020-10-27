@@ -108,7 +108,7 @@ if config["options"]["peakcaller"] == "genrich":
 
 		rule genrich_merge:
 			input:
-				lambda w: expand("results/02_bam/{condition}.sorted.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
+				t = lambda w: expand("results/02_bam/{condition}.sorted.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
 			output:
 				"results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 				#readme = "results/03_genrich/merged/{condition}/readme.txt",
@@ -128,12 +128,12 @@ if config["options"]["peakcaller"] == "genrich":
 			shell:
 				"""
 				{params.genrich} -j \
-				-t {input:q} \
+				-t '{input.t}' \
 				-o {output} \
 				-{params.p_or_q} {params.pqval} \
 				{params.pe_se} 2>> {log}
 
-				echo 'This peaks have been called using more than 1 replicates ({input.bams}) for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
+				echo 'This peaks have been called using more than 1 replicates ({input}) for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
 				"""
 
 		rule filter_peaks_genrich_merge:
@@ -171,11 +171,11 @@ if config["options"]["peakcaller"] == "genrich":
 			params:
 				before = config["promoter"]["bTSS"],
 				after  = config["promoter"]["aTSS"],
-				genome = lambda wildcards: SAMPLES.GENOME[wildcards.sample]
+				genome = "mm10"
 			log: 
 				"results/00_log/peakAnnot/{condition}_peakanot.log"
 			message:
-				"Annotating peaks for {wildcards.sample}"
+				"Annotating peaks for {wildcards.condition}"
 			shell:
 				"""
 				Rscript --vanilla workflow/scripts/pipeline/peakAnno.R {input} {params.before} {params.after}   \
