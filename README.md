@@ -1,7 +1,5 @@
 # Pasini's lab ATAC-seq pipeline for Snakemake
 
-DOESN'T WORK!!!!
-
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.4.3-brightgreen.svg)](https://snakemake.bitbucket.io)
 
 Snakemake-based ATAC-seq pipeline to be run in our PBS-based HPC using singularity containers. The singularity image that is used to run this pipeline is created from [this](https://github.com/dfernandezperez/Docker/blob/master/ChIP-seq/Dockerfile) docker container.
@@ -116,9 +114,7 @@ At the end of the `configuration/Snakefile` you will find all the possible targe
 
 ## To Do's
 
-* Move creation of fastq files to a temporary folder outside of the project folder.
 * Migrate 100% to snakemake profiles and stop using the `cluster.yaml` configuration.
-* Add options to run `Genrich` with different replicates.
 * Add options to run replicate merging with `IDR` after the peak calling (two replicates max).
 * Add options to downsample the *bamfiles* by desired groups.
 * Adding the input-normalization of spike-in samples in case the input is provided.
