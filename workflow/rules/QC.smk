@@ -52,7 +52,7 @@ rule fastqc:
 # # ------- PhantomPeakQual ------- #
 rule phantom_peak_qual:
     input: 
-        "results/02_bam/{sample}/{sample}.bam"
+        "results/02_bam/{sample}.bam"
     output:
         "results/01_QCs/phantom_peak_qual/{sample}.spp.out"
     log:
@@ -73,7 +73,7 @@ rule phantom_peak_qual:
 # # ------- InsertSize calculation ------- #
 rule insert_size:
     input:
-        "results/02_bam/{sample}/{sample}.bam"
+        "results/02_bam/{sample}.bam"
     output:
         txt="results/01_QCs/insert_size/{sample}.isize.txt",
         pdf="results/01_QCs/insert_size/{sample}.isize.pdf"
@@ -106,7 +106,7 @@ rule insert_size:
 # # ------- Deeptools quality control ------- #
 rule plotFingerprint:
     input: 
-        case      = "results/02_bam/{sample}/{sample}.bam", 
+        case      = "results/02_bam/{sample}.bam", 
     output: 
         qualMetrics = "results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv",
         raw_counts  = "results/01_QCs/fingerPrint/{sample}.rawcounts.tsv",
@@ -128,7 +128,7 @@ rule plotFingerprint:
 
 # rule GC_bias:
 #     input: 
-#         bam = "results/02_bam/{sample}/{sample}.bam",
+#         bam = "results/02_bam/{sample}.bam",
 #         bed = rules.filter_peaks.output.macs2_filt
 #     output: 
 #         pdf      = "results/01_QCs/GCbias/{sample}_GCbias.pdf",
@@ -174,7 +174,7 @@ if config["options"]["peakcaller"] == "macs":
             expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
             expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES)
         output: 
-            file = "results/01_QCs/multiQC/multiQC_inputs.txt"
+            file = "results/01_QCs/multiQC/multiQC_inputs_macs2.txt"
         message:
             "create file containing all multiqc input files"
         run:
@@ -184,9 +184,9 @@ if config["options"]["peakcaller"] == "macs":
 
     rule multiQC:
         input:
-            "results/01_QCs/multiQC/multiQC_inputs.txt"
+            "results/01_QCs/multiQC/multiQC_inputs_macs2.txt"
         output: 
-            "results/01_QCs/multiQC/multiQC_report.html"
+            "results/01_QCs/multiQC/multiQC_report_macs2.html"
         params:
             log_name = "multiQC_report",
             folder   = "results/01_QCs/multiQC"
@@ -200,38 +200,81 @@ if config["options"]["peakcaller"] == "macs":
             """
 
 elif config["options"]["peakcaller"] == "genrich":
-    rule multiQC_inputs:
-        input:
-            expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
-            expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
-            expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
-            expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
-            expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
-            expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
-            expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
-            #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
-        output: 
-            file = "results/01_QCs/multiQC/multiQC_inputs.txt"
-        message:
-            "create file containing all multiqc input files"
-        run:
-            with open(output.file, 'w') as outfile:
-                for fname in input:
-                        outfile.write(fname + "\n")
 
-    rule multiQC:
-        input:
-            "results/01_QCs/multiQC/multiQC_inputs.txt"
-        output: 
-            "results/01_QCs/multiQC/multiQC_report.html"
-        params:
-            log_name = "multiQC_report",
-            folder   = "results/01_QCs/multiQC"
-        log:
-            "results/00_log/multiQC/multiQC.log"
-        message:
-            "multiQC for all logs"
-        shell:
-            """
-            multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
-            """
+    if config["options"]["genrich_merge"] == False:
+
+        rule multiQC_inputs:
+            input:
+                expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
+                expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
+                expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
+                expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
+                expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
+                expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
+                expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
+                #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
+            output: 
+                file = "results/01_QCs/multiQC/multiQC_inputs.txt"
+            message:
+                "create file containing all multiqc input files"
+            run:
+                with open(output.file, 'w') as outfile:
+                    for fname in input:
+                            outfile.write(fname + "\n")
+
+        rule multiQC:
+            input:
+                "results/01_QCs/multiQC/multiQC_inputs_genrich.txt"
+            output: 
+                "results/01_QCs/multiQC/multiQC_report_genrich.html"
+            params:
+                log_name = "multiQC_report",
+                folder   = "results/01_QCs/multiQC"
+            log:
+                "results/00_log/multiQC/multiQC.log"
+            message:
+                "multiQC for all logs"
+            shell:
+                """
+                multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
+                """
+
+    elif config["options"]["genrich_merge"] == True:
+
+        rule multiQC_inputs:
+            input:
+                expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
+                expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
+                expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
+                expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
+                expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
+                expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
+                expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
+                #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
+            output: 
+                file = "results/01_QCs/multiQC/multiQC_inputs_genrich_merge.txt"
+            message:
+                "create file containing all multiqc input files"
+            run:
+                with open(output.file, 'w') as outfile:
+                    for fname in input:
+                            outfile.write(fname + "\n")
+
+
+
+        rule multiQC:
+            input:
+                "results/01_QCs/multiQC/multiQC_inputs_genrich_merge.txt"
+            output: 
+                "results/01_QCs/multiQC/multiQC_report_genrich_merge.html"
+            params:
+                log_name = "multiQC_report",
+                folder   = "results/01_QCs/multiQC"
+            log:
+                "results/00_log/multiQC/multiQC.log"
+            message:
+                "multiQC for all logs"
+            shell:
+                """
+                multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
+                """

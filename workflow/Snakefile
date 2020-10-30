@@ -32,7 +32,6 @@ ALL_CONDITIONS = set(SAMPLES.CONDITION)
 # ----- Determine output files ----- #
 ALL_BAMs         = expand("results/02_bam/{sample}.bam", sample=ALL_SAMPLES)
 
-ALL_QCs          = ["results/01_QCs/multiQC/multiQC_report.html"]
 ALL_FASTQCs      = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample=ALL_SAMPLES)
 
 ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", sample=ALL_SAMPLES)
@@ -44,7 +43,9 @@ if config["options"]["peakcaller"] == "macs2":
         ALL_PEAKS      = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
         ALL_PEAKS_FILT = expand("results/03_macs2/{sample}/{sample}_peaks_" + config["params"]["macs2"]["p_or_q"] + config["params"]["macs2"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
         ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["macs2"]["p_or_q"] + config["params"]["macs2"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
-        
+        ALL_QCs        = ["results/01_QCs/multiQC/multiQC_report_macs2.html"]
+
+
     elif config["options"]["idr_merge"] == False:
         ALL_PEAKS      = expand("results/03_macs2/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
         # ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_logp" + config["params"]["macs2"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
@@ -57,12 +58,16 @@ elif config["options"]["peakcaller"] == "genrich":
         ALL_PEAKS      = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
         ALL_PEAKS_FILT = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
         ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
+        ALL_QCs        = ["results/01_QCs/multiQC/multiQC_report_genrich.html"]
+
+
 
     elif config["options"]["genrich_merge"] == True:
         ALL_PEAKS      = expand("results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
         ALL_PEAKS_FILT = expand("results/03_genrich/merged/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
         ALL_PEAKANNOT  = expand("results/04_peakAnno/merged/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, condition=ALL_CONDITIONS)
-    
+        ALL_QCs        = ["results/01_QCs/multiQC/multiQC_report_genrich_merge.html"]
+
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Local rules are rules that won't be submitted to the scheduler but executed in the current session (front-end or node)
@@ -75,16 +80,22 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks_macs, filter_peaks_genrich,
 #-----------------------------------------------------------------------------------------------------------------------
 
 rule all:
-    input: ALL_PEAKANNOT
+    input: ALL_PEAKANNOT + ALL_QCs #+ ALL_BIGWIG 
 
 rule peaks:
     input: ALL_PEAKS
+
+rule peak_annot:
+    input: ALL_PEAKANNOT
 
 rule bams:
     input: ALL_BAMs #+ ALL_BIGWIG 
 
 rule all_server:
     input: ALL_BW2SERVER
+
+rule qc:
+    input: ALL_QCs
 
 # rule only_idr:
 #     input: ALL_IDR

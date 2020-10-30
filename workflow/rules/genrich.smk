@@ -111,7 +111,7 @@ if config["options"]["peakcaller"] == "genrich":
 				t = lambda w: expand("results/02_bam/{condition}.sorted.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
 			output:
 				"results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
-				#readme = "results/03_genrich/merged/{condition}/readme.txt",
+	
 			params:
 				# path to genrich
 				genrich = config["params"]["genrich"]["path"],
