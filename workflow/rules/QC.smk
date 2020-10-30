@@ -4,9 +4,8 @@
 
 # Here I want to create a rule to plot a bar graph with the number of reads aligned in each chromosome.
 # Has to use a function of amitjavilaventura called chromReads() in the chromReads.R script.
- 
-## Copied from DANI's ChIP-seq pipeline from here on. 
 
+## Most things are copied from dfernadezperez chipseq pipeline
 # ----- Function get_fq_forward(). ----- #
 # This function will return the forward read, in the case of Paired-End, in order to analize it with fastqc. 
 # To use as input for the "rule fastqc" when updating the pipeline to differentiate single-end and paired-end. Now it is only for PE.
@@ -26,26 +25,44 @@ def get_fq_forward(wildcards):
         # single end sample
         return "{tmp}/fastq/{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
 
-
-# ----- FASTQC ----- #
+# ------- FASTQC ------- #
 rule fastqc:
+    """This rule is a little bit tricky to fit PE fastq in multiqc.
+    Basically the probelm is that fastqc needs to run R1 and R2 separatelly,
+    which means 2 fastqc_zip files with different names. This will be recognized
+    by multiqc as different samples, so the report will be a mess.
+    My workaround has been to use just the forward fastq to create the report.
+    For this I need to change the fastq file name (because it has .1.) to fit
+    what multiqc is expecting as name. If multiqc reads A.1.fastq it won't know
+    that that file must match A.bam in the report, and they will be in different
+    rows. I know it's a pain of workaround but it's the only solution I found.
+    For this I need to create a symlink to the fastq to be able to change it's name
+    (without duplicating the file which would be less efficient). To make sure that 
+    the symlink will work it needs to be created from the folder where it's going to be,
+    that's why the cd command of the rule it's imporant. Since the fastq folder can change
+    this step needs to work always, it's the only solution I cam up with.
+    """
     input:  
-        get_fq_forward,
+        get_fq_forward
     output: 
         "results/01_QCs/fastQC/{sample}_fastqc.zip"
     log:    
         "results/00_log/fastQC/{sample}.log"
     params:
         folder_name = "results/01_QCs/fastQC/",
-        tmp = "results/01_QCs/fastQC/{sample}.fastq"
-    threads:
+        tmp = "{sample}.fastq.gz"
+    threads: 
         CLUSTER["fastqc"]["cpu"]
     message: 
         "Running fastqc for {input}"
+    shadow: 
+        "minimal"
     shell:
         """
-        ln -s "$(pwd)/{input}" {params.tmp}
-        fastqc -o {params.folder_name} -f fastq -t {threads} --noextract {params.tmp} 2> {log}
+        cd {params.folder_name} # Move to folder where symlink is going to be created
+        ln -s {input} {params.tmp} # Create symlink to fastq file. Imporant to set the desired file name.
+        cd - # Go back to workdir
+        fastqc -o {params.folder_name} -f fastq -t {threads} --noextract {params.folder_name}/{params.tmp} 2> {log}
         """
 
 

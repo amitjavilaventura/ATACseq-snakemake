@@ -91,11 +91,17 @@ rule peak_annot:
 rule bams:
     input: ALL_BAMs #+ ALL_BIGWIG 
 
+rule bams_qc:
+    input: ALL_BAMs + ALL_QCs 
+
 rule all_server:
     input: ALL_BW2SERVER
 
 rule qc:
     input: ALL_QCs
+
+rule only_fastqc:
+    input: ALL_FASTQCs
 
 # rule only_idr:
 #     input: ALL_IDR
