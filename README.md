@@ -2,9 +2,13 @@
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.4.3-brightgreen.svg)](https://snakemake.bitbucket.io)
 
-Snakemake-based ATAC-seq pipeline to be run in our PBS-based HPC using singularity containers. The singularity image that is used to run this pipeline is created from [this](https://github.com/dfernandezperez/Docker/blob/master/ChIP-seq/Dockerfile) docker container.
 
 Developers: [amitjavilaventura](https://github.com/amitjavilaventura) & [dfernandezperez](https://github.com/dfernandezperez)
+
+Snakemake-based ATAC-seq pipeline to be run in our PBS-based HPC using singularity containers. The singularity image that is used to run this pipeline is created from [this](https://github.com/dfernandezperez/Docker/blob/master/ChIP-seq/Dockerfile) docker container.
+
+Many features from this pipeline have been retrieved from or are based in [*deferernandezperez*'s ChIPseq pipeline for Snakemake](https://github.com/dfernandezperez/ChIPseq-snakemake/tree/development), so if you have some doubts that are not solved in this readme file or in the comments within the code, you may find the solutions in th
+
 
 ## Setup
 

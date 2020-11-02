@@ -66,7 +66,7 @@ rule fastqc:
         """
 
 
-# # ------- PhantomPeakQual ------- #
+# ------- PhantomPeakQual ------- #
 rule phantom_peak_qual:
     input: 
         "results/02_bam/{sample}.bam"
@@ -82,7 +82,7 @@ rule phantom_peak_qual:
         "Running phantompeakqual for {wildcards.sample}"
     shell:
         """
-        /opt/miniconda2/bin/Rscript --vanilla scripts/run_spp_nodups.R \
+        /opt/miniconda2/bin/Rscript --vanilla workflow/scripts/pipeline/run_ssp_nodups.R \
         -c={input[0]} -savp -rf -p={threads} -odir={params.out_dir}  -out={output} -tmpdir={params.out_dir}  2> {log}
         """
 
@@ -276,7 +276,6 @@ elif config["options"]["peakcaller"] == "genrich":
                 with open(output.file, 'w') as outfile:
                     for fname in input:
                             outfile.write(fname + "\n")
-
 
 
         rule multiQC:

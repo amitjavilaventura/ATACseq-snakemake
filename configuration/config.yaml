@@ -49,7 +49,8 @@ params:
     p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
     pqval: 5e-4 #q- or p- value that will be use as threshold (depends on p_or_q param)
     filt_peaks_pqval: "5" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
-    chrM: "-e chrM" # to get rid of the reads mapping in the mitochondrial chromosome. either "-e chrM" or ""
+    chrM: "" # to get rid of the reads mapping in the mitochondrial chromosome. either "-e chrM" or ""
+    rm_pcr_dups: "" # to remove PCR duplicates; either "" or "-r". Default is "" since PCR dups are removed in the aligning step
 
   # Macs2 params
   macs2:
@@ -93,15 +94,17 @@ ref:
 options:
   # Caller: one of "macs2" or "genrich"
   peakcaller: "genrich"
-  ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
   # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
   genrich_merge: True
+  ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
   # merge replicate samples with IDR when calling peaks with macs2: True or False
   idr_merge: False
-  # get rid of reads mapping in the chrM: True or False.
-  no_chrM: False
+  # to merge Bams: True or False. This is useful when working with different replicates and plotting Heatmaps that require the signal in the bw.. etc.
+  merge_bams: False
   # do downsample or not: True or False.
   downsample: False
+  # get rid of reads mapping in the chrM (from the bamfiles): True or False.
+  no_chrM: False
 
 
   

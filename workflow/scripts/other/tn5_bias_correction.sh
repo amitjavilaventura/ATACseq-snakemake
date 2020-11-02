@@ -8,4 +8,4 @@
 source activate atacseq 	# I have TOBIAS installed in this conda environment
 
 
-TOBIAS ATACorrect -b 
+#TOBIAS ATACorrect -b ...

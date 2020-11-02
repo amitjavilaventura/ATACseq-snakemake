@@ -23,14 +23,18 @@ if config["options"]["peakcaller"] == "genrich":
 				"results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
 			params:
 				# path to genrich
-				genrich = config["params"]["genrich"]["path"],
+				genrich  = config["params"]["genrich"]["path"],
 				# pe/se parameters
-				pe      = lambda w: config["params"]["genrich"]["se"] if is_single_end(w.sample) else "",
+				pe_se    = lambda w: config["params"]["genrich"]["se"] if is_single_end(w.sample) else "",
 				# pvalue/qvalue threshold
-				p_or_q  = config["params"]["genrich"]["p_or_q"],
-				pqval   = config["params"]["genrich"]["pqval"],
+				p_or_q   = config["params"]["genrich"]["p_or_q"],
+				pqval    = config["params"]["genrich"]["pqval"],
+				# rm chr M reads
+				chrM     = config["params"]["genrich"]["chrM"],
+				# rm pcr duplicates
+				pcr_dups = config["params"]["genrich"]["rm_pcr_dups"],
 				# readme file
-				readme  = "results/03_genrich/readme.txt",
+				readme   = "results/03_genrich/readme.txt",
 			threads: 5
 			log:
 				"results/00_log/genrich/{sample}_peakcalling.log",
@@ -40,7 +44,8 @@ if config["options"]["peakcaller"] == "genrich":
 				-t {input} \
 				-o {output} \
 				-{params.p_or_q} {params.pqval} \
-				{params.pe} 2>> {log}
+				{params.pe_se} {params.chrM} \
+				{params.pcr_dups} -v 2>> {log}
 
 				echo 'This peaks have been called with genrich using {params.pe} \
 				and a {params.p_or_q}value threshold of {params.pqval}' > {params.readme}
@@ -120,6 +125,10 @@ if config["options"]["peakcaller"] == "genrich":
 				# pvalue/qvalue threshold
 				p_or_q  = config["params"]["genrich"]["p_or_q"],
 				pqval   = config["params"]["genrich"]["pqval"],
+				# rm chr M reads
+				chrM     = config["params"]["genrich"]["chrM"],
+				# rm pcr duplicates
+				pcr_dups = config["params"]["genrich"]["rm_pcr_dups"],
 				# readme file
 				readme  = "results/03_genrich/merged/{condition}/readme.txt",
 			threads: 5
@@ -131,7 +140,8 @@ if config["options"]["peakcaller"] == "genrich":
 				-t '{input.t}' \
 				-o {output} \
 				-{params.p_or_q} {params.pqval} \
-				{params.pe_se} 2>> {log}
+				{params.pe_se} {params.chrM} \
+				{params.pcr_dups} -v 2>> {log}
 
 				echo 'This peaks have been called using more than 1 replicates ({input}) for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
 				"""

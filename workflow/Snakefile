@@ -33,6 +33,7 @@ ALL_CONDITIONS = set(SAMPLES.CONDITION)
 ALL_BAMs         = expand("results/02_bam/{sample}.bam", sample=ALL_SAMPLES)
 
 ALL_FASTQCs      = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample=ALL_SAMPLES)
+ALL_PHANTOM      = expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES)
 
 ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", sample=ALL_SAMPLES)
 ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
@@ -102,6 +103,9 @@ rule qc:
 
 rule only_fastqc:
     input: ALL_FASTQCs
+
+rule phantom:
+    input: ALL_PHANTOM
 
 # rule only_idr:
 #     input: ALL_IDR
