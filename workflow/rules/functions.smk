@@ -24,9 +24,9 @@ def get_fq(wildcards):
     if config["options"]["trimming"]:
         if not is_single_end(**wildcards):
             # paired-end sample
-            return expand("{tmp}/fastq/trimmed{sample}.{group}.fastq.gz", group=[1, 2], **wildcards, tmp = config["tmp"])
+            return expand("{tmp}/fastq/trimmed/{sample}.{group}.fastq.gz", group=[1, 2], **wildcards, tmp = config["tmp"])
         # single end sample
-        return "{tmp}/fastq/trimmed{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
+        return "{tmp}/fastq/trimmed/{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
     else:
         # no trimming, use raw reads
         if not is_single_end(**wildcards):
@@ -34,7 +34,6 @@ def get_fq(wildcards):
             return expand("{tmp}/fastq/{sample}.{group}.fastq.gz", group=[1, 2], **wildcards, tmp = config["tmp"])
         # single end sample
         return "{tmp}/fastq/{sample}.se.fastq.gz".format(tmp = config["tmp"], **wildcards)
-
 
 # ----- Function set_reads() ----- #
 # To use as one of the params in align.
@@ -48,7 +47,7 @@ def set_reads(wildcards, input):
             reads = "{}".format(*input)
             return reads
         else:
-            reads = config["params"]["bowtie"]["pe"] + " -1 {} -2 {}".format(*input)
+            reads = config["params"]["bowtie2"]["pe"] + " -1 {} -2 {}".format(*input)
             return reads
 
 

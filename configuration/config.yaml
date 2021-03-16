@@ -18,24 +18,30 @@ cluster: configuration/cluster.yaml
 # Just write the prefix-path where you want to put those files, or write '.' to have them in the workdir.
 # By now just fastq files will be located in this folder
 # IMPORTANT: if you have running multiple snakemake pipelines with the same tmp folder all the fastq files will be located togeter. Care with the sample names to not be repeated.
-tmp: /hpcnfs/scratch/temporary/.amitjavila
+tmp: /hpcnfs/scratch/temporary/.atacseq
 
 # Parameters for the software used
 params:
+  
+  # Bowtie2 params
+  bowtie2: 
+    # https://www.protocols.io/view/cut-amp-tag-data-processing-and-analysis-tutorial-bjk2kkye.html
+    global: "--local --very-sensitive --no-mixed --no-discordant --phred33"
+    pe: "-I 10 -X 700"
 
-  # Bowtie params
-  bowtie:
-    global: "--chunkmbs 1024 -m 1 --best -S --no-unal -q"
-    pe: "-I 10 -X 1000"
-
+  # Samblaster by default just mark duplicates but doesn't remove them. To remove pcr duplicates add --removeDups here.
+  samblaster: "--removeDups"
+  
+  # Samtools params
   samtools:
     # Memory used by every core of samtools (GB). Be careful that 
     # memory x threads is not bigger than the amount of memory assigned to align rule
     memory: 2
 
+  # Fastp params 
   fastp:
-    se: "-t 1 -A -Q -L"
-    pe: "-t 1 -A -Q -L"
+    se: "-Q -L"
+    pe: "-Q -L --detect_adapter_for_pe"
 
   genrich:
     path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
@@ -51,7 +57,7 @@ params:
   bam2bigwig:
     read_extension: 200
     other: "--binSize 50"
-
+    
 # Determine the region corresponding to promoters around TSS
 promoter:
   # After TSS

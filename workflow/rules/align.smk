@@ -2,31 +2,37 @@
 # Aligning with bowtie
 # Reomving PCR duplicates with samblaster
 # Sorting and indexing with samtool
+
 rule align:
     input:
-        get_fq,
+        get_fq
     output:
-        bam = "results/02_bam/{sample}.bam",
-        bai = "results/02_bam/{sample}.bam.bai",
+         bam   = temp("results/02_bam/{sample}.bam"),
+         index = temp("results/02_bam/{sample}.bam.bai")
     threads:
         CLUSTER["align"]["cpu"]
     params:
-        index        = config["ref"]["index"],
-        bowtie       = config["params"]["bowtie"]["global"],
-        reads        = set_reads,
-        samtools_mem = config["params"]["samtools"]["memory"],
+        index  	     = config["ref"]["index"],
+        bowtie2 	 = config["params"]["bowtie2"]["global"],
+        samblaster   = config["params"]["samblaster"],
+        reads  	     = set_reads,
+        samtools_mem = config["params"]["samtools"]["memory"]
+    message:
+        "Aligning {input} with parameters {params.bowtie2}"
     log:
-        align   = "results/00_log/align/{sample}_align.log",
-        rm_dups = "results/00_log/align/{sample}_rm-dup.log",
-        index   = "results/00_log/align/{sample}_index.log",
+       align   = "results/00log/align/{sample}.log",
+       rm_dups = "results/00log/align/rm_dup/{sample}.log",
+    benchmark:
+        "results/.benchmarks/{sample}.align.benchmark.txt"
     shell:
         """
-        bowtie -p {threads} {params.bowtie} {params.index} {params.reads} 2> {log.align} \
-        | samblaster --removeDups 2> {log.rm_dups} \
-        | samtools view -Sb -F 4 - \
+        bowtie2 -p {threads} {params.bowtie2} -x {params.index} {params.reads} 2> {log.align} \
+        | samblaster {params.samblaster} 2> {log.rm_dups} \
+        | samtools view -q2 -Sb -F 4 - \
         | samtools sort -m {params.samtools_mem}G -@ {threads} -T {output.bam}.tmp -o {output.bam} - 2>> {log.align}
-        samtools index {output.bam} 2> {log.index}
+        samtools index {output.bam}
         """
+
 
 rule genrich_sort:
     input:
@@ -36,9 +42,6 @@ rule genrich_sort:
     threads:
         CLUSTER["align"]["cpu"]
     params:
-        index        = config["ref"]["index"],
-        bowtie       = config["params"]["bowtie"]["global"],
-        reads        = set_reads,
         samtools_mem = config["params"]["samtools"]["memory"],
     log:
         sort   = "results/00_log/genrich_sort/{sample}_bam_sort_genrich.log",

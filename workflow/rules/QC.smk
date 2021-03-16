@@ -182,7 +182,7 @@ rule plotFingerprint:
 
 rule multiQC_inputs:
     input:
-        expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
+        expand("results/00_log/align/{sample}.log", sample = ALL_SAMPLES),
         expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
         expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
         expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
