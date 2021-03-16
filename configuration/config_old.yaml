@@ -52,6 +52,16 @@ params:
     chrM: "" # to get rid of the reads mapping in the mitochondrial chromosome. either "-e chrM" or ""
     rm_pcr_dups: "" # to remove PCR duplicates; either "" or "-r". Default is "" since PCR dups are removed in the aligning step
 
+  # Macs2 params
+  macs2:
+    callpeak: "--keep-dup all -m 3 30"
+    gsize: mm
+    p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
+    pqval: 1e-5 #q- or p- value that will be use as threshold (depends on p_or_q param)
+    pqval_broad: 1e-5
+    # -log10 pvalue for peak filtering - corresponds to the 8th column of the narrowPeak file. Default 10.
+    filt_peaks_pqval: "10"
+
   # Bam2bigwig params
   bam2bigwig:
     read_extension: 200
@@ -82,6 +92,8 @@ ref:
   egenome_size: 2308125349
 
 options:
+  # Caller: one of "macs2" or "genrich"
+  peakcaller: "genrich"
   # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
   genrich_merge: False
   ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.

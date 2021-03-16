@@ -74,7 +74,7 @@ if config["options"]["peakcaller"] == "macs2":
     # ----- Annotate peaks with peakAnno from ChIPseeker in R ----- #
     rule peakAnnot_macs:
         input:
-            rules.filter_peaks.output.bed_filt,
+            rules.filter_peaks_macs.output.bed_filt,
         output:
             annot             = "results/04_peakAnno/{{sample}}/{{sample}}-peaks_log{p_or_q}{pqvalue}.annot".format(pqvalue = pqval, p_or_q = pq),
             promo_bed_targets = "results/04_peakAnno/{{sample}}/{{sample}}-peaks_log{p_or_q}{pqvalue}_promoTargets.bed".format(pqvalue = pqval, p_or_q = pq),
