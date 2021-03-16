@@ -28,23 +28,22 @@ rule align:
         samtools index {output.bam} 2> {log.index}
         """
 
-if config["options"]["peakcaller"] == "genrich":
-    rule genrich_sort:
-        input:
-            "results/02_bam/{sample}.bam",
-        output:
-            bam = "results/02_bam/{sample}.sorted.bam",
-        threads:
-            CLUSTER["align"]["cpu"]
-        params:
-            index        = config["ref"]["index"],
-            bowtie       = config["params"]["bowtie"]["global"],
-            reads        = set_reads,
-            samtools_mem = config["params"]["samtools"]["memory"],
-        log:
-            sort   = "results/00_log/genrich_sort/{sample}_bam_sort_genrich.log",
-        shell:
-            """
-            samtools sort -n -m {params.samtools_mem}G -@ {threads} -T {output.bam}.tmp -o {output.bam} {input} 2>> {log.sort}
-            """
+rule genrich_sort:
+    input:
+       "results/02_bam/{sample}.bam",
+    output:
+        bam = "results/02_bam/{sample}.sorted.bam",
+    threads:
+        CLUSTER["align"]["cpu"]
+    params:
+        index        = config["ref"]["index"],
+        bowtie       = config["params"]["bowtie"]["global"],
+        reads        = set_reads,
+        samtools_mem = config["params"]["samtools"]["memory"],
+    log:
+        sort   = "results/00_log/genrich_sort/{sample}_bam_sort_genrich.log",
+    shell:
+        """
+        samtools sort -n -m {params.samtools_mem}G -@ {threads} -T {output.bam}.tmp -o {output.bam} {input} 2>> {log.sort}
+        """
 

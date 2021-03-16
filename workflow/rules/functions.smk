@@ -21,7 +21,7 @@ def is_single_end(sample):
 # When using this, the arguments "-1 {input.fw} -2 {input.rv}" in the shell command have to be deleted, because they are included in the function set_reads().
 # When using this, the {input.fw} and {input.rv} have to be substituted by "get_fq"
 def get_fq(wildcards):
-    if config["trimming"]:
+    if config["options"]["trimming"]:
         if not is_single_end(**wildcards):
             # paired-end sample
             return expand("{tmp}/fastq/trimmed{sample}.{group}.fastq.gz", group=[1, 2], **wildcards, tmp = config["tmp"])

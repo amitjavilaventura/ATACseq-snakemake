@@ -50,17 +50,13 @@ Here I am using lane1 and lane2 for consistency and making things more clear, bu
 
 All metadata and information regarding every sample is located in `samples.tsv`. The file has the following structure:
 
-| NAME | INPUT | SPIKE | AB | USER | GENOME | RUN | IS_INPUT | CONDITION | DOWNSAMPLE_GROUP |
+| NAME | INPUT |  USER | GENOME | RUN | IS_INPUT | CONDITION | DOWNSAMPLE_GROUP |
 |:----:|:-----:|:-----:|:--:|:----:|:------:|:---:|:--------:|:---------:|:----------------:|
-| name_of_sample | input_to_use | If the sample contains spikein. true or false | antibody | user | versione of genome (i.e: mm10) | run of the sequencing | if the sample is an input | sample_condition | group whose bamfiles will be downsampled to the bamfile with the lower number of reads |
+| name_of_sample | input_to_use | user | version of genome (i.e: mm10) | run of the sequencing | if the sample is an input | sample_condition | group whose bamfiles will be downsampled to the bamfile with the lower number of reads |
 
 * For every sample, the `NAME` field has to contain exactly the same name that was written in the `sample` column of the `units.tsv`.
 
 * The `INPUT` field contains the name of the input corresponding to the given sample. It has to be the name of the input written in the fields `sample` and `NAME` from `units.tsv` and `samples.tsv`. At the moment this is set to FALSE because there is not an option to put the input.
-
-* `SPIKE`: TRUE or FALSE based on if the sample contains spike-in or not. At the moment this is set to FALSE because the pipeline with the spikein is not developed.
-
-* `AB`, `USER`, `RUN`: Metadata corresponding to each sample. If there's nothing to fill I usually write an X.
 
 * `GENOME`: Version of the genome used for the alignment. It will be used for peak annotation with ChIPseeker. Right now the accepted values are mm9, mm10, hg19 and hg38.
 

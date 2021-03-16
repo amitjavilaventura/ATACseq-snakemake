@@ -18,12 +18,7 @@ cluster: configuration/cluster.yaml
 # Just write the prefix-path where you want to put those files, or write '.' to have them in the workdir.
 # By now just fastq files will be located in this folder
 # IMPORTANT: if you have running multiple snakemake pipelines with the same tmp folder all the fastq files will be located togeter. Care with the sample names to not be repeated.
-tmp: /hpcnfs/scratch/temporary/.atacseq_snakemake
-
-# perform trimming: false or true
-# if true go to params (at the end)
-# to set desired trimming parameters
-trimming: false
+tmp: /hpcnfs/scratch/temporary/.amitjavila
 
 # Parameters for the software used
 params:
@@ -93,6 +88,10 @@ options:
   downsample: False
   # get rid of reads mapping in the chrM (from the bamfiles): True or False.
   no_chrM: False
+  # perform trimming: false or true
+  # if true go to params (at the end)
+  # to set desired trimming parameters
+  trimming: false
 
 
   

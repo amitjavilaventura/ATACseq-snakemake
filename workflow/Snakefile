@@ -23,7 +23,7 @@ units.index = units.index.set_levels([i.astype(str) for i in units.index.levels]
 
 # ----- Get the samples name, input, etc ----- #
 ALL_SAMPLES    = SAMPLES.NAME
-ALL_CONTROLS   = SAMPLES.INPUT
+#ALL_CONTROLS   = SAMPLES.INPUT
 SAMPLES_GENOME = SAMPLES.GENOME
 
 ALL_CONDITIONS = set(SAMPLES.CONDITION)
