@@ -7,7 +7,7 @@ from snakemake.utils import validate, min_version
 min_version("5.4.3")
 
 # ----- Singularity image path ----- #
-singularity: "/hpcnfs/data/DP/Singularity/cutntag_160221.sif"
+singularity: "/hpcnfs/data/DP/Singularity/atacseq_snakemake_latest.sif"
 
 # ----- Configfile ----- #
 configfile: "configuration/config.yaml"
@@ -38,17 +38,18 @@ ALL_PHANTOM      = expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", s
 ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", sample=ALL_SAMPLES)
 ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
 
+ALL_QCs        = ["results/01_QCs/multiQC/multiQC_report.html"]
+
 if config["options"]["genrich_merge"] == False:
     ALL_PEAKS      = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
     ALL_PEAKS_FILT = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
     ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
-    ALL_QCs        = ["results/01_QCs/multiQC/multiQC_report_genrich.html"]
+
 
 elif config["options"]["genrich_merge"] == True:
     ALL_PEAKS      = expand("results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
     ALL_PEAKS_FILT = expand("results/03_genrich/merged/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
     ALL_PEAKANNOT  = expand("results/04_peakAnno/merged/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, condition=ALL_CONDITIONS)
-    ALL_QCs        = ["results/01_QCs/multiQC/multiQC_report_genrich_merge.html"]
 
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -98,7 +99,6 @@ include: "rules/align.smk"
 include: "rules/bam2bw.smk"
 include: "rules/genrich.smk"
 include: "rules/QC.smk"
-include: "rules/idr.smk"
 # include: "rules/prepare2GEO.smk
 
 # ----- handle possible errors, clean temp folders ----- #

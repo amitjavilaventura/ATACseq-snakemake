@@ -1,9 +1,9 @@
 # Python functions to be used for the snakemake pipeline.
 
-# ----- Function get_fastq() ----- #
+# ----- Function get_lanes() ----- #
 # It will read the variable "units" which has the names of the sample, the lane and the paths to the fastq files.
 # It will make a list with the paths to fq1 and fq2 for each sample and each lane. 
-def get_fastq(wildcards):
+def get_lanes(wildcards):
     return units.loc[(wildcards.sample, wildcards.lane), ["fq1", "fq2"]].dropna()
 
 # ----- Function is_single_end() ----- #

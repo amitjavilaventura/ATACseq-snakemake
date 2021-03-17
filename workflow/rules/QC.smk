@@ -186,7 +186,7 @@ rule multiQC_inputs:
         expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
         expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
         expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
-        expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
+        expand("results/00_log/align/rm_dup/{sample}.log", sample = ALL_SAMPLES),
         expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
         expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
         #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
@@ -201,9 +201,9 @@ rule multiQC_inputs:
 
 rule multiQC:
     input:
-        "results/01_QCs/multiQC/multiQC_inputs_genrich.txt"
+        "results/01_QCs/multiQC/multiQC_inputs.txt"
     output: 
-        "results/01_QCs/multiQC/multiQC_report_genrich.html"
+        "results/01_QCs/multiQC/multiQC_report.html"
     params:
         log_name = "multiQC_report",
         folder   = "results/01_QCs/multiQC"

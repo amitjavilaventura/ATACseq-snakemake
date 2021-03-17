@@ -15,7 +15,7 @@ if config["options"]["genrich_merge"] == False:
 
 	rule genrich:
 		input:
-			"results/02_bam/{sample}.sorted.bam",
+			"results/02_bam/{sample}.bam.tmp",
 		output:
 			"results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
 		params:
@@ -110,7 +110,7 @@ elif config["options"]["genrich_merge"] == True:
 
 	rule genrich_merge:
 		input:
-			t = lambda w: expand("results/02_bam/{condition}.sorted.bam", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
+			t = lambda w: expand("results/02_bam/{condition}.bam.tmp", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME),
 		output:
 			"results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 		params:

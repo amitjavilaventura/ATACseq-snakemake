@@ -18,7 +18,7 @@ cluster: configuration/cluster.yaml
 # Just write the prefix-path where you want to put those files, or write '.' to have them in the workdir.
 # By now just fastq files will be located in this folder
 # IMPORTANT: if you have running multiple snakemake pipelines with the same tmp folder all the fastq files will be located togeter. Care with the sample names to not be repeated.
-tmp: /hpcnfs/scratch/temporary/.atacseq
+tmp: /hpcnfs/scratch/temporary/.atacmitji
 
 # Parameters for the software used
 params:
@@ -68,7 +68,7 @@ promoter:
 # Reference files and parameters for mm10 mouse genome version.
 ref:
   # Bowtie index for the alignment of the sample
-  index: /hpcnfs/techunits/bioinformatics/refdata/Mus_musculus/UCSC/mm10/Sequence/BowtieIndex/genome
+  index: /hpcnfs/techunits/bioinformatics/refdata/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
   # Bowtie index for the alignmed of the spike-in, if there is
   index_spike: /hpcnfs/data/DP/dm6/dm6
   # File required by computeGCbias from deeptools

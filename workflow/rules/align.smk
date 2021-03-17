@@ -1,4 +1,4 @@
-# ----- Aligning with BOWTIE and processing with SAMTOOLS ----- #
+# ----- Aligning with BOWTIE2 and processing with SAMTOOLS ----- #
 # Aligning with bowtie
 # Reomving PCR duplicates with samblaster
 # Sorting and indexing with samtool
@@ -20,8 +20,8 @@ rule align:
     message:
         "Aligning {input} with parameters {params.bowtie2}"
     log:
-       align   = "results/00log/align/{sample}.log",
-       rm_dups = "results/00log/align/rm_dup/{sample}.log",
+       align   = "results/00_log/align/{sample}.log",
+       rm_dups = "results/00_log/align/rm_dup/{sample}.log",
     benchmark:
         "results/.benchmarks/{sample}.align.benchmark.txt"
     shell:
@@ -38,7 +38,7 @@ rule genrich_sort:
     input:
        "results/02_bam/{sample}.bam",
     output:
-        bam = "results/02_bam/{sample}.sorted.bam",
+        bam = temp("results/02_bam/{sample}.bam.tmp"),
     threads:
         CLUSTER["align"]["cpu"]
     params:

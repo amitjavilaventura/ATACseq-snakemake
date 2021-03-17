@@ -34,8 +34,8 @@ rule bam2bigwig_noSubstract:
 rule bigwig2server:
     input: 
         bw         = "results/02_bigwig/noSubtract/{sample}.bw",
-        samblaster = "results/00_log/alignments/rm_dup/{sample}.log",
-        bowtie     = "results/00_log/alignments/{sample}.log"
+        samblaster = "results/00_log/align/rm_dup/{sample}.log",
+        bowtie2    = "results/00_log/align/{sample}.log"
     output:
         temp("results/temp_file_{sample}_{control}.txt")
     params:

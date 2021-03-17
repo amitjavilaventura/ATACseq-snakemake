@@ -10,10 +10,10 @@ __default__ :
     error       : "results/.clusterLogs/{rule}.{wildcards}.err"
     MaxMem      : 8
 
-fastp_trim_se :
+fastp_se :
     cpu : 1
 
-fastp_trim_pe :
+fastp_pe :
     cpu : 1
 
 geo_fastp_se :
