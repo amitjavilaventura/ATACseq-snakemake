@@ -65,13 +65,16 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks_genrich, filter_peaks_genri
 rule all:
     input: ALL_PEAKANNOT + ALL_QCs #+ ALL_BIGWIG 
 
-rule peaks:
+rule all_server:
+    input: ALL_BW2SERVER
+
+rule get_peaks:
     input: ALL_PEAKS + ALL_PEAKS_FILT
 
-rule peak_annot:
+rule get_peak_anno:
     input: ALL_PEAKANNOT
 
-rule bams:
+rule get_bams:
     input: ALL_BAMs #+ ALL_BIGWIG 
 
 rule get_bigwigs:
@@ -80,20 +83,16 @@ rule get_bigwigs:
 rule bams_qc:
     input: ALL_BAMs + ALL_QCs 
 
-rule all_server:
-    input: ALL_BW2SERVER
 
-rule qc:
+
+rule get_qc:
     input: ALL_QCs
 
-rule only_fastqc:
+rule get_fastqc:
     input: ALL_FASTQCs
 
-rule phantom:
+rule get_phantom:
     input: ALL_PHANTOM
-
-# rule only_idr:
-#     input: ALL_IDR
 
 # ----- Load rules in external files ----- #
 include: "rules/functions.smk"
