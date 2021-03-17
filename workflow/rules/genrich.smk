@@ -170,7 +170,7 @@ elif config["options"]["genrich_merge"] == True:
 			rules.filter_peaks_genrich_merge.output.bed_filt,
 		output:
 			annot             = "results/04_peakAnno/merged/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}.annot".format(pqvalue = pqval, p_or_q = pq),
-			promo_bed_targets = "results/04_peakAnno/merged/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}_promoTargets.bed".forma(pqvalue = pqval, p_or_q = pq),
+			promo_bed_targets = "results/04_peakAnno/merged/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}_promoTargets.bed".format(pqvalue = pqval, p_or_q = pq),
 			promoTargets      = "results/04_peakAnno/merged/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}_promoTargets.txt".format(pqvalue = pqval, p_or_q = pq),
 			promoBed          = "results/04_peakAnno/merged/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}_promoPeaks.bed".format(pqvalue = pqval, p_or_q = pq),
 			distalBed         = "results/04_peakAnno/merged/{{condition}}/{{condition}}-peaks_log{p_or_q}{pqvalue}_distalPeaks.bed".format(pqvalue = pqval, p_or_q = pq),

@@ -74,6 +74,9 @@ rule peak_annot:
 rule bams:
     input: ALL_BAMs #+ ALL_BIGWIG 
 
+rule get_bigwigs:
+    input: ALL_BIGWIG 
+
 rule bams_qc:
     input: ALL_BAMs + ALL_QCs 
 
