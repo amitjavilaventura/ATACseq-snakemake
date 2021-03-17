@@ -121,39 +121,6 @@ rule plotFingerprint:
         --plotFile {output.plot}
         """
 
-rule GC_bias:
-    input: 
-        bam = "results/02_bam/{sample}.bam",
-        bed = rules.filter_peaks.output.macs2_filt
-    output: 
-        pdf      = "results/01_QCs/GCbias/{sample}_GCbias.pdf",
-        freq_txt = "results/01_QCs/GCbias/{sample}_GCbias.txt"
-    log:
-        "results/00_log/GCbias/{sample}_GCbias.log"
-    params:
-        repeatMasker = config["ref"]['rep_masker'],
-        tempBed      = "results/01_QCs/GCbias/{sample}_Repeatmasker.bed.tmp",
-        bit_file     = config["ref"]["2bit"],
-        egenome_size = config["ref"]["egenome_size"]
-    threads: 5
-    message:
-        "Computing GC bias for sample {wildcards.sample}"
-    shell:
-        """
-        bedops -u {input.bed} {params.repeatMasker} > {params.tempBed}
-        bp_peaks=$(bedops --merge {input.bed} | bedmap --bases - | awk "{{sum+=\$1}}END{{print sum}}")
-        total_eGsize=$(({params.egenome_size}-$bp_peaks))
-
-        computeGCBias -b {input.bam} \
-            -p {threads} \
-            --effectiveGenomeSize $total_eGsize \
-            -g {params.bit_file} \
-            -l 200 \
-            -bl {params.tempBed} \
-            --biasPlot {output.pdf} \
-            --GCbiasFrequenciesFile {output.freq_txt} 2> {log}
-        rm -f {params.tempBed}
-        """
 
 # ---------------- MultiQC report ----------------- #
 # if config["options"]["genrich_merge"] == False:

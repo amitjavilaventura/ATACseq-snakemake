@@ -40,7 +40,7 @@ MULTIQC          = ["results/01_QCs/multiQC/multiQC_report.html"]
 
 
 
-ALL_BIGWIG       = expand("results/02_bigwig/{sample}.bw", sample=ALL_SAMPLES)
+ALL_BIGWIG       = expand("results/02_bigwig/noSubtract/{sample}.bw", sample=ALL_SAMPLES)
 ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
 
 
@@ -67,7 +67,7 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks_genrich, filter_peaks_genri
 #-----------------------------------------------------------------------------------------------------------------------
 
 rule all:
-    input: ALL_PEAKANNOT + ALL_QCs #+ ALL_BIGWIG 
+    input: ALL_PEAKANNOT + MULTIQC + ALL_BIGWIG 
 
 rule all_server:
     input: ALL_BW2SERVER
@@ -83,14 +83,14 @@ rule get_peak_anno:
 rule get_bams:
     input: ALL_BAMs #+ ALL_BIGWIG 
 
-rule get_bigwigs:
+rule get_bw:
     input: ALL_BIGWIG 
 
 rule bams_qc:
     input: ALL_BAMs + MULTIQC 
 
 # qc_rules
-rule get_qc:
+rule get_multiqc:
     input: MULTIQC
 
 rule get_fastqc:
@@ -98,9 +98,6 @@ rule get_fastqc:
 
 rule get_fingerprint:
     input: ALL_FINGERPRINT
-
-rule get_gcbias:
-    input: ALL_GCBIAS
 
 # ----- Load rules in external files ----- #
 include: "rules/functions.smk"

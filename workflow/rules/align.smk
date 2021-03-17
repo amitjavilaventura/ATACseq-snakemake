@@ -7,8 +7,8 @@ rule align:
     input:
         get_fq
     output:
-         bam   = temp("results/02_bam/{sample}.bam"),
-         index = temp("results/02_bam/{sample}.bam.bai")
+         bam   = "results/02_bam/{sample}.bam",
+         index = "results/02_bam/{sample}.bam.bai"
     threads:
         CLUSTER["align"]["cpu"]
     params:
