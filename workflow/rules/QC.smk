@@ -65,28 +65,6 @@ rule fastqc:
         fastqc -o {params.folder_name} -f fastq -t {threads} --noextract {params.folder_name}/{params.tmp} 2> {log}
         """
 
-
-# ------- PhantomPeakQual ------- #
-rule phantom_peak_qual:
-    input: 
-        "results/02_bam/{sample}.bam"
-    output:
-        "results/01_QCs/phantom_peak_qual/{sample}.spp.out"
-    log:
-        "results/00_log/phantom_peak_qual/{sample}_phantompeakqual.log"
-    threads:
-        CLUSTER["phantom_peak_qual"]["cpu"]
-    params:
-        out_dir = "results/01_QCs/phantom_peak_qual/"
-    message:
-        "Running phantompeakqual for {wildcards.sample}"
-    shell:
-        """
-        /opt/miniconda2/bin/Rscript --vanilla workflow/scripts/pipeline/run_ssp_nodups.R \
-        -c={input[0]} -savp -rf -p={threads} -odir={params.out_dir}  -out={output} -tmpdir={params.out_dir}  2> {log}
-        """
-
-
 # # ------- InsertSize calculation ------- #
 rule insert_size:
     input:
@@ -143,39 +121,39 @@ rule plotFingerprint:
         --plotFile {output.plot}
         """
 
-# rule GC_bias:
-#     input: 
-#         bam = "results/02_bam/{sample}.bam",
-#         bed = rules.filter_peaks.output.macs2_filt
-#     output: 
-#         pdf      = "results/01_QCs/GCbias/{sample}_GCbias.pdf",
-#         freq_txt = "results/01_QCs/GCbias/{sample}_GCbias.txt"
-#     log:
-#         "results/00_log/GCbias/{sample}_GCbias.log"
-#     params:
-#         repeatMasker = config["ref"]['rep_masker'],
-#         tempBed      = "results/01_QCs/GCbias/{sample}_Repeatmasker.bed.tmp",
-#         bit_file     = config["ref"]["2bit"],
-#         egenome_size = config["ref"]["egenome_size"]
-#     threads: 5
-#     message:
-#         "Computing GC bias for sample {wildcards.sample}"
-#     shell:
-#         """
-#         bedops -u {input.bed} {params.repeatMasker} > {params.tempBed}
-#         bp_peaks=$(bedops --merge {input.bed} | bedmap --bases - | awk "{{sum+=\$1}}END{{print sum}}")
-#         total_eGsize=$(({params.egenome_size}-$bp_peaks))
+rule GC_bias:
+    input: 
+        bam = "results/02_bam/{sample}.bam",
+        bed = rules.filter_peaks.output.macs2_filt
+    output: 
+        pdf      = "results/01_QCs/GCbias/{sample}_GCbias.pdf",
+        freq_txt = "results/01_QCs/GCbias/{sample}_GCbias.txt"
+    log:
+        "results/00_log/GCbias/{sample}_GCbias.log"
+    params:
+        repeatMasker = config["ref"]['rep_masker'],
+        tempBed      = "results/01_QCs/GCbias/{sample}_Repeatmasker.bed.tmp",
+        bit_file     = config["ref"]["2bit"],
+        egenome_size = config["ref"]["egenome_size"]
+    threads: 5
+    message:
+        "Computing GC bias for sample {wildcards.sample}"
+    shell:
+        """
+        bedops -u {input.bed} {params.repeatMasker} > {params.tempBed}
+        bp_peaks=$(bedops --merge {input.bed} | bedmap --bases - | awk "{{sum+=\$1}}END{{print sum}}")
+        total_eGsize=$(({params.egenome_size}-$bp_peaks))
 
-#         computeGCBias -b {input.bam} \
-#             -p {threads} \
-#             --effectiveGenomeSize $total_eGsize \
-#             -g {params.bit_file} \
-#             -l 200 \
-#             -bl {params.tempBed} \
-#             --biasPlot {output.pdf} \
-#             --GCbiasFrequenciesFile {output.freq_txt} 2> {log}
-#         rm -f {params.tempBed}
-#         """
+        computeGCBias -b {input.bam} \
+            -p {threads} \
+            --effectiveGenomeSize $total_eGsize \
+            -g {params.bit_file} \
+            -l 200 \
+            -bl {params.tempBed} \
+            --biasPlot {output.pdf} \
+            --GCbiasFrequenciesFile {output.freq_txt} 2> {log}
+        rm -f {params.tempBed}
+        """
 
 # ---------------- MultiQC report ----------------- #
 # if config["options"]["genrich_merge"] == False:
@@ -185,7 +163,6 @@ rule multiQC_inputs:
         expand("results/00_log/align/{sample}.log", sample = ALL_SAMPLES),
         expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
         expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
-        expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
         expand("results/00_log/align/rm_dup/{sample}.log", sample = ALL_SAMPLES),
         expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
         expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
