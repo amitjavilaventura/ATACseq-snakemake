@@ -6,7 +6,7 @@ rule bam2bigwig_noSubstract:
     input: 
         unpack(get_bam)
     output:  
-        "results/02_bigwig/noSubtract/{sample}.bw"
+        "results/05_bigwig/noSubtract/{sample}.bw"
     params: 
         read_exten = set_read_extension,
         reads      = set_reads_spike2,
@@ -33,7 +33,7 @@ rule bam2bigwig_noSubstract:
 # ----- Put .bw files to the folder where they are read to be visualized in UCSC ----- # 
 rule bigwig2server:
     input: 
-        bw         = "results/02_bigwig/noSubtract/{sample}.bw",
+        bw         = "results/05_bigwig/noSubtract/{sample}.bw",
         samblaster = "results/00_log/align/rm_dup/{sample}.log",
         bowtie2    = "results/00_log/align/{sample}.log"
     output:

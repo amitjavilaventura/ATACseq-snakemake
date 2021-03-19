@@ -9,6 +9,7 @@ __default__ :
     output      : "results/.clusterLogs/{rule}.{wildcards}.out"
     error       : "results/.clusterLogs/{rule}.{wildcards}.err"
     MaxMem      : 8
+    queue       : "workq"
 
 fastp_se :
     cpu : 1

@@ -40,7 +40,7 @@ MULTIQC          = ["results/01_QCs/multiQC/multiQC_report.html"]
 
 
 
-ALL_BIGWIG       = expand("results/02_bigwig/noSubtract/{sample}.bw", sample=ALL_SAMPLES)
+ALL_BIGWIG       = expand("results/05_bigwig/noSubtract/{sample}.bw", sample=ALL_SAMPLES)
 ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
 
 
