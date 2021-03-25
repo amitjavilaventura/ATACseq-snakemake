@@ -53,7 +53,7 @@ Here I am using lane1 and lane2 for consistency and making things more clear, bu
 All metadata and information regarding every sample is located in `samples.tsv`. The file has the following structure:
 
 | NAME | INPUT |  USER | GENOME | RUN | IS_INPUT | CONDITION | DOWNSAMPLE_GROUP |
-|:----:|:-----:|:-----:|:--:|:----:|:------:|:---:|:--------:|:---------:|:----------------:|
+|:----:|:-----:|:-----:|:--:    |:---:|:------:  |:---:      |:--------:        |
 | name_of_sample | input_to_use | user | version of genome (i.e: mm10) | run of the sequencing | if the sample is an input | sample_condition | group whose bamfiles will be downsampled to the bamfile with the lower number of reads |
 
 * For every sample, the `NAME` field has to contain exactly the same name that was written in the `sample` column of the `units.tsv`.
@@ -64,7 +64,7 @@ All metadata and information regarding every sample is located in `samples.tsv`.
 
 * `IS_INPUT`: The options are TRUE or FALSE. If the sample is an input set it to TRUE. Also, in case the sample is an input sequenced just to calculate the ratio sample/spike-in that won't be used to call peaks, set it to TRUE. At the moment this is set to FALSE because there is not an option to put the input.
 
-* `CONDITION`: Condition in which the sample belongs. This feature has been added because an option to merge replicates inside the Genrich peak calling step will be included in the near future.
+* `CONDITION`: Condition in which the sample belongs. This feature has been added because there is an option to merge replicates inside the Genrich peak calling step.
 
 * `DOWNSAMPLE_GROUP`: Group of different samples whose bamfiles will be downsampled to the file with lower number of reads. This function has not been added yet. 
 
@@ -73,10 +73,40 @@ All metadata and information regarding every sample is located in `samples.tsv`.
 
 To configure the pipeline parameters go to `configuration/config.yaml`. 
 This file contains the configuration of the software and parameters used in the pipeline. Modify them as you wish. 
-Check always that you are using the correct genome files corresponding to the version that you want to use. 
-Also check the effective genome size that is used by deeptools to calculate the GC bias.
+Check always that you are using the correct genome files corresponding to the version that you want to use.
 
-At the end of `configuration/config.yaml` there is an options field in which you can decide which peak caller to use (i.e.`MACS2` or `Genrich`), if you want to merge replicates with IDR, etc. At this moment, only the peak caller feature is enabled.
+Structure of the `configuration/config.yaml`:
+
+* `units` has the path to the `configuration/units.tsv`. It must not change. 
+* `samples` has the path to the `configuration/samples.tsv`. It must not change. 
+* `cluster` has the path to the `configuration/cluster.yaml`. It must not change. 
+* `tmp` contains the path to a folder where fastq files will be saved. This folder can be any folder you want.
+* `params` contains the parameters of some software used:
+	
+	+ `bowtie2`
+	+ `samblaster`
+	+ `samtools`
+	+ `fastp`
+	+ `genrich` is the peak caller used in this pipeline, look at [it's repository](https://github.com/jsh58/Genrich) for more information. Parameters in Genrich:
+
+		+ `atacmode`: whether to use ATAC mode (-j, default) or "normal" mode. One of "-j" or "".
+		+ `se`: parameters for peak calling from single-end reads. The default is "-y -d 150". "-y" is compulsory.
+		+ `p_or_q`: whether to filter by p-value or q-value. One of "p" (default) or "q". 
+		+ `pqval`: p- or q-value threshold in the peak calling step. Default is 5e-4
+		+ `filt_peaks_pqval`: p- or q- value threshold to filter the peaks in a second filtering step. In log10 format. Default is "5"
+		+ `chrM`: whether to remove reads aligning to chrM (or others) in the peak calling step. One of "-e chrM" (default) or "".
+		+ `rm_pcr_dups`: whether to remove the pcr duplicates. One of "-r" or "". The default is "" because PCR duplicates are removed by samblaster.
+	
+	+ `bam2bigwig`
+
+* `promoter`: how many bases after and before the TSS define the promoter.
+* `ref`: reference files (genome indexes...) used.
+* `options`: options for the pipeline. The ones available are:
+
+	+ `genrich_merge`: if you are working with replicates, setting this to True will make Genrich to call the peaks using the bam files of both replicates. The output will be narrowPeak file for the condition specified in `samples.tsv`.
+	+ The other options are not available yet.
+
+
 
 ### Cluster configuration
 

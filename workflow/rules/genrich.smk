@@ -19,9 +19,10 @@ if config["options"]["genrich_merge"] == False:
 		output:
 			"results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
 		params:
-			# path to genrich
-			genrich  = config["params"]["genrich"]["path"],
+			# path to genrich since it's in the singularity image it's not needed.
+			#genrich  = config["params"]["genrich"]["path"],
 			# pe/se parameters
+			atacmode = config["params"]["genrich"]["atac_mode"]
 			pe_se    = lambda w: config["params"]["genrich"]["se"] if is_single_end(w.sample) else "",
 			# pvalue/qvalue threshold
 			p_or_q   = config["params"]["genrich"]["p_or_q"],
@@ -37,7 +38,7 @@ if config["options"]["genrich_merge"] == False:
 			"results/00_log/genrich/{sample}_peakcalling.log",
 		shell:
 			"""
-			{params.genrich} -j \
+			Genrich -j \
 			-t {input} \
 			-o {output} \
 			-{params.p_or_q} {params.pqval} \
