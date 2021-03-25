@@ -38,7 +38,7 @@ if config["options"]["genrich_merge"] == False:
 			"results/00_log/genrich/{sample}_peakcalling.log",
 		shell:
 			"""
-			Genrich -j \
+			Genrich {params.atacmode} \
 			-t {input} \
 			-o {output} \
 			-{params.p_or_q} {params.pqval} \
@@ -63,10 +63,10 @@ if config["options"]["genrich_merge"] == False:
 			p_or_q         = config["params"]["genrich"]["p_or_q"],
 			pq_filt        = config["params"]["genrich"]["filt_peaks_pqval"]
 		log:
-			"results/00_log/genrich_merge/{condition}_genrich_filt_peaks.log"
+			"results/00_log/genrich/{condition}_get_summits.log"
 		shell:
 			"""
-			awk  'BEGIN {{OFS="\t"}}; {{ print $1, $2+$10, $2+$10+1, $4, $8, $9}}' {input.narrow} > {output.summit}
+			awk  'BEGIN {{OFS="\t"}}; {{ print $1, $2+$10, $2+$10+1, $4, $8, $9}}' {input.narrow} > {output.summit} 2>> {log}
 			"""
 
 
@@ -138,7 +138,7 @@ elif config["options"]["genrich_merge"] == True:
 			"results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 		params:
 			# path to genrich
-			genrich = config["params"]["genrich"]["path"],
+			atacmode = config["params"]["genrich"]["atac_mode"],
 			# pe/se parameters
 			pe_se   = lambda w: config["params"]["genrich"]["se"] if config["params"]["genrich"]["pe_or_se"] == "se" else "",
 			# pvalue/qvalue threshold
@@ -155,7 +155,7 @@ elif config["options"]["genrich_merge"] == True:
 			"results/00_log/genrich_merge/{condition}_peakcalling.log",
 		shell:
 			"""
-			Genrich -j \
+			Genrich {params.atacmode} \
 			-t '{input.t}' \
 			-o {output} \
 			-{params.p_or_q} {params.pqval} \
@@ -170,9 +170,11 @@ elif config["options"]["genrich_merge"] == True:
 			narrow = "results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 		output:
 			summit = "results/03_genrich/merged/{condition}/{condition}_summits.bed",
+		log: 
+			"results/00_log/genrich_merge/{condition}_get_summits.log",
 		shell:
 			"""
-			awk  'BEGIN {{OFS="\t"}}; {{ print $1, $2+$10, $2+$10+1, $4, $8, $9 }}'  {input.narrow} > {output.summit}
+			awk  'BEGIN {{OFS="\t"}}; {{ print $1, $2+$10, $2+$10+1, $4, $8, $9 }}'  {input.narrow} > {output.summit} 2>> {log}
 			"""
 
 	rule filter_peaks_genrich_merge:

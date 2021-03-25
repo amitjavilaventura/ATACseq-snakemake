@@ -56,6 +56,16 @@ All metadata and information regarding every sample is located in `samples.tsv`.
 |:----:|:-----:|:-----:|:--:    |:---:|:------:  |:---:      |:--------:        |
 | name_of_sample | input_to_use | user | version of genome (i.e: mm10) | run of the sequencing | if the sample is an input | sample_condition | group whose bamfiles will be downsampled to the bamfile with the lower number of reads |
 
+For example:
+
+| NAME | INPUT |  USER | GENOME | RUN    | IS_INPUT | CONDITION | DOWNSAMPLE_GROUP |
+|:----:|:-----:|:-----:|:--:    |:---:   |:------:  |:---------:|:----------------:|
+| foo1 | False | user  | mm10   | 210303 | FALSE	| foo       | *not used*       |
+| foo2 | False | user  | mm10   | 210303 | FALSE	| foo       | *not used*       |
+| bar1 | False | user  | mm10   | 210303 | FALSE	| bar       | *not used*       |
+| bar2 | False | user  | mm10   | 210303 | FALSE	| bar       | *not used*       |
+
+
 * For every sample, the `NAME` field has to contain exactly the same name that was written in the `sample` column of the `units.tsv`.
 
 * The `INPUT` field contains the name of the input corresponding to the given sample. It has to be the name of the input written in the fields `sample` and `NAME` from `units.tsv` and `samples.tsv`. At the moment this is set to FALSE because there is not an option to put the input.
@@ -90,6 +100,7 @@ Structure of the `configuration/config.yaml`:
 	+ `genrich` is the peak caller used in this pipeline, look at [it's repository](https://github.com/jsh58/Genrich) for more information. Parameters in Genrich:
 
 		+ `atacmode`: whether to use ATAC mode (-j, default) or "normal" mode. One of "-j" or "".
+		+ `pe_or_se`: wheter samples are PE or SE. This is required only when `options: genrich_merge: True`, otherwise is not used.
 		+ `se`: parameters for peak calling from single-end reads. The default is "-y -d 150". "-y" is compulsory.
 		+ `p_or_q`: whether to filter by p-value or q-value. One of "p" (default) or "q". 
 		+ `pqval`: p- or q-value threshold in the peak calling step. Default is 5e-4
@@ -103,7 +114,7 @@ Structure of the `configuration/config.yaml`:
 * `ref`: reference files (genome indexes...) used.
 * `options`: options for the pipeline. The ones available are:
 
-	+ `genrich_merge`: if you are working with replicates, setting this to True will make Genrich to call the peaks using the bam files of both replicates. The output will be narrowPeak file for the condition specified in `samples.tsv`.
+	+ `genrich_merge`: if you are working with replicates, setting this to True will make Genrich to call the peaks using the bam files of both replicates. The output will be narrowPeak file for the condition specified in `samples.tsv`. If False, a .narrowPeak file for each replicate will be generated.
 	+ The other options are not available yet.
 
 

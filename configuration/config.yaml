@@ -46,6 +46,7 @@ params:
   genrich: #https://github.com/jsh58/Genrich
     #path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
     atac_mode: "-j" # whether to use atac mode (-j) or normal mode "". one of "-j" or "". https://github.com/jsh58/Genrich#atac-seq-mode
+    pe_or_se: "" # whether samples are PE o SE. It works only when options: genrich_merge: True
     se: "-y -d 150" # parameters for peak calling if samples are single-end
     p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
     pqval: 5e-4 #q- or p- value that will be use as threshold (depends on p_or_q param)
