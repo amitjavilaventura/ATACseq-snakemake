@@ -50,7 +50,7 @@ params:
     p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
     pqval: 5e-4 #q- or p- value that will be use as threshold (depends on p_or_q param)
     filt_peaks_pqval: "5" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
-    chrM: "" # to get rid of the reads mapping in the mitochondrial chromosome. either "-e chrM" or ""
+    chrM: "-e chrM" # to get rid of the reads mapping in the mitochondrial chromosome. either "-e chrM" or ""
     rm_pcr_dups: "" # to remove PCR duplicates; either "" or "-r". Default is "" since PCR dups are removed in the aligning step
 
   # Bam2bigwig params

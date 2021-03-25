@@ -45,15 +45,23 @@ ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
 
 
 if config["options"]["genrich_merge"] == False:
-    ALL_PEAKS      = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
-    ALL_PEAKS_FILT = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
-    ALL_PEAKANNOT  = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
+    ALL_PEAKS        = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+    ALL_PEAKS_FILT   = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
+
+    ALL_SUMMITS      = expand("results/03_genrich/{sample}/{sample}_summits.bed", zip, sample=ALL_SAMPLES)
+    ALL_SUMMITS_FILT = expand("results/03_genrich/{sample}/{sample}_summits_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
+
+    ALL_PEAKANNOT    = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
 
 
 elif config["options"]["genrich_merge"] == True:
-    ALL_PEAKS      = expand("results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
-    ALL_PEAKS_FILT = expand("results/03_genrich/merged/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
-    ALL_PEAKANNOT  = expand("results/04_peakAnno/merged/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, condition=ALL_CONDITIONS)
+    ALL_PEAKS        = expand("results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+    ALL_PEAKS_FILT   = expand("results/03_genrich/merged/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
+
+    ALL_SUMMITS      = expand("results/03_genrich/merged/{condition}/{condition}_summits.bed", zip, condition=ALL_CONDITIONS)
+    ALL_SUMMITS_FILT = expand("results/03_genrich/merged/{condition}/{condition}_summits_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
+    
+    ALL_PEAKANNOT    = expand("results/04_peakAnno/merged/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, condition=ALL_CONDITIONS)
 
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -67,7 +75,7 @@ localrules: get_fastq_se, get_fastq_pe, filter_peaks_genrich, filter_peaks_genri
 #-----------------------------------------------------------------------------------------------------------------------
 
 rule all:
-    input: ALL_PEAKANNOT + MULTIQC + ALL_BIGWIG 
+    input: ALL_PEAKANNOT + ALL_SUMMITS_FILT + MULTIQC + ALL_BIGWIG 
 
 rule all_server:
     input: ALL_BW2SERVER
@@ -79,15 +87,15 @@ rule get_peaks:
 rule get_peak_anno:
     input: ALL_PEAKANNOT
 
+rule get_summits:
+    input: ALL_SUMMITS + ALL_SUMMITS_FILT
+
 # bam bw rules
 rule get_bams:
     input: ALL_BAMs #+ ALL_BIGWIG 
 
 rule get_bw:
     input: ALL_BIGWIG 
-
-rule bams_qc:
-    input: ALL_BAMs + MULTIQC 
 
 # qc_rules
 rule get_multiqc:

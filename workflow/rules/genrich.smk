@@ -50,6 +50,24 @@ if config["options"]["genrich_merge"] == False:
 			#rm {input}  
 			"""
 
+	rule summits_genrich:
+		input:
+			narrow = "results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
+		output:
+			summit = "results/03_genrich/{sample}/{sample}_summits.bed",
+		params:
+			log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
+			column_pqval   = lambda w: "8" if config["params"]["genrich"]["p_or_q"]=="p" else "9",
+			readme         = "results/03_genrich/readme.txt",
+			p_or_q         = config["params"]["genrich"]["p_or_q"],
+			pq_filt        = config["params"]["genrich"]["filt_peaks_pqval"]
+		log:
+			"results/00_log/genrich_merge/{condition}_genrich_filt_peaks.log"
+		shell:
+			"""
+			awk  'BEGIN {{OFS="\t"}}; {{ print $1, $2+$10, $2+$10+1, $4, $8, $9}}' {input.narrow} > {output.summit}
+			"""
+
 
 	pq    = config["params"]["genrich"]["p_or_q"]
 	pqval = config["params"]["genrich"]["filt_peaks_pqval"]
@@ -59,7 +77,8 @@ if config["options"]["genrich_merge"] == False:
 		input:
 			narrow = "results/03_genrich/{sample}/{sample}_peaks.narrowPeak",
 		output:
-			bed_filt = "results/03_genrich/{{sample}}/{{sample}}_peaks_{p_or_q}{pqvalue}.bed".format(pqvalue = config["params"]["genrich"]["filt_peaks_pqval"], p_or_q = config["params"]["genrich"]["p_or_q"])
+			bed_filt = "results/03_genrich/{{sample}}/{{sample}}_peaks_{p_or_q}{pqvalue}.bed".format(pqvalue = config["params"]["genrich"]["filt_peaks_pqval"], p_or_q = config["params"]["genrich"]["p_or_q"]),
+			sum_filt = "results/03_genrich/{{sample}}/{{sample}}_peaks_{p_or_q}{pqvalue}.bed".format(pqvalue = config["params"]["genrich"]["filt_peaks_pqval"], p_or_q = config["params"]["genrich"]["p_or_q"]),
 		params:
 			log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
 			column_pqval   = lambda w: "8" if config["params"]["genrich"]["p_or_q"]=="p" else "9",
@@ -70,10 +89,13 @@ if config["options"]["genrich_merge"] == False:
 			"results/00_log/genrich/{sample}_genrich_filt_peaks.log"
 		shell:
 			"""
-			awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
+			awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9,10 > {output.bed_filt} 2> {log}
+
+			awk 'BEGIN {{OFS="\t"}}; {{print$1, $2+$7, $2+$7+1, $5, $6 }}' {output.bed_filt} > {output.sum_filt}
 
 			echo '
-			Genrich narrowpeaks were filtered using a -log10({params.p_or_q}value) threshold of {params.pq_filt}' \
+			Genrich narrowpeaks were filtered using a -log10({params.p_or_q}value) threshold of {params.pq_filt}.
+			The' \
 			> {params.readme}
 			"""
 
@@ -91,11 +113,11 @@ if config["options"]["genrich_merge"] == False:
 		params:
 			before = config["promoter"]["bTSS"],
 			after  = config["promoter"]["aTSS"],
-			genome = lambda wildcards: SAMPLES.GENOME[wildcards.sample]
+			genome = lambda wildcards: SAMPLES.GENOME[wildcards.sample],
 		log: 
-			"results/00_log/peakAnnot/{sample}_peakanot_genrich.log"
+			"results/00_log/peakAnnot/{sample}_peakanot_genrich.log",
 		message:
-			"Annotating peaks for {wildcards.sample}"
+			"Annotating peaks for {wildcards.sample}",
 		shell:
 			"""
 			Rscript --vanilla workflow/scripts/pipeline/peakAnno.R {input} {params.before} {params.after}   \
@@ -132,7 +154,7 @@ elif config["options"]["genrich_merge"] == True:
 			"results/00_log/genrich_merge/{condition}_peakcalling.log",
 		shell:
 			"""
-			{params.genrich} -j \
+			Genrich -j \
 			-t '{input.t}' \
 			-o {output} \
 			-{params.p_or_q} {params.pqval} \
@@ -142,11 +164,22 @@ elif config["options"]["genrich_merge"] == True:
 			echo 'This peaks have been called using more than 1 replicates ({input}) for each condition, the parameters {params.pe_se} and a {params.p_or_q}value threshold of {params.pqval}.' > {params.readme}
 			"""
 
+	rule summits_genrich_merge:
+		input:
+			narrow = "results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
+		output:
+			summit = "results/03_genrich/merged/{condition}/{condition}_summits.bed",
+		shell:
+			"""
+			awk  'BEGIN {{OFS="\t"}}; {{ print $1, $2+$10, $2+$10+1, $4, $8, $9 }}'  {input.narrow} > {output.summit}
+			"""
+
 	rule filter_peaks_genrich_merge:
 		input:
 			narrow = "results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak",
 		output:
-			bed_filt = "results/03_genrich/merged/{{condition}}/{{condition}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"])
+			bed_filt = "results/03_genrich/merged/{{condition}}/{{condition}}_peaks_p{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"]),
+			sum_filt = "results/03_genrich/merged/{{condition}}/{{condition}}_summits_p{pvalue}.bed".format(pvalue = config["params"]["genrich"]["filt_peaks_pqval"]),
 		params:
 			log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
 			column_pqval   = lambda w: "8" if config["params"]["genrich"]["p_or_q"]=="p" else "9",
@@ -157,7 +190,8 @@ elif config["options"]["genrich_merge"] == True:
 			"results/00_log/genrich_merge/{condition}_genrich_filt_peaks.log"
 		shell:
 			"""
-			awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9 > {output.bed_filt} 2> {log}
+			awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow} | cut -f1-4,8,9,10 > {output.bed_filt} 2> {log}
+			awk 'BEGIN {{OFS="\t"}}; {{print $1, $2+$7, $2+$7+1, $4, $5, $6 }}' {output.bed_filt} > {output.sum_filt}
 			"""
 
 
