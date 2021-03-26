@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------------------------------------- #
+# SNAKEFILE
+# ----------------------------------------------------------------------------------------------- #
+
 # ----- Import libraries ----- #
 import pandas as pd
 import yaml
@@ -39,35 +43,33 @@ ALL_GCBIAS       = expand("results/01_QCs/GCbias/{sample}_GCbias.pdf", sample = 
 MULTIQC          = ["results/01_QCs/multiQC/multiQC_report.html"]
 
 
-
 ALL_BIGWIG       = expand("results/05_bigwig/noSubtract/{sample}.bw", sample=ALL_SAMPLES)
 ALL_BW2SERVER    = expand("results/temp_file_{sample}.txt", sample=ALL_SAMPLES)
 
 
-if config["options"]["genrich_merge"] == False:
+if config["options"]["genrich_pool"]:
+    ALL_PEAKS        = expand("results/03_genrich/pooled/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+    ALL_PEAKS_FILT   = expand("results/03_genrich/pooled/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".bed", zip, condition=ALL_CONDITIONS)
+
+    ALL_SUMMITS      = expand("results/03_genrich/pooled/{condition}/{condition}_summits.bed", zip, condition=ALL_CONDITIONS)
+    ALL_SUMMITS_FILT = expand("results/03_genrich/pooled/{condition}/{condition}_summits_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".bed", zip, condition=ALL_CONDITIONS)
+    
+    ALL_PEAKANNOT    = expand("results/04_peakAnno/pooled/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".annot", zip, condition=ALL_CONDITIONS)
+
+elif config["options"]["genrich_pool"] == False:
     ALL_PEAKS        = expand("results/03_genrich/{sample}/{sample}_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
-    ALL_PEAKS_FILT   = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
+    ALL_PEAKS_FILT   = expand("results/03_genrich/{sample}/{sample}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".bed", zip, sample=ALL_SAMPLES)
 
     ALL_SUMMITS      = expand("results/03_genrich/{sample}/{sample}_summits.bed", zip, sample=ALL_SAMPLES)
-    ALL_SUMMITS_FILT = expand("results/03_genrich/{sample}/{sample}_summits_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, sample=ALL_SAMPLES)
+    ALL_SUMMITS_FILT = expand("results/03_genrich/{sample}/{sample}_summits_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".bed", zip, sample=ALL_SAMPLES)
 
-    ALL_PEAKANNOT    = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, sample=ALL_SAMPLES)
-
-
-elif config["options"]["genrich_merge"] == True:
-    ALL_PEAKS        = expand("results/03_genrich/merged/{condition}/{condition}_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
-    ALL_PEAKS_FILT   = expand("results/03_genrich/merged/{condition}/{condition}_peaks_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
-
-    ALL_SUMMITS      = expand("results/03_genrich/merged/{condition}/{condition}_summits.bed", zip, condition=ALL_CONDITIONS)
-    ALL_SUMMITS_FILT = expand("results/03_genrich/merged/{condition}/{condition}_summits_" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".bed", zip, condition=ALL_CONDITIONS)
-    
-    ALL_PEAKANNOT    = expand("results/04_peakAnno/merged/{condition}/{condition}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt_peaks_pqval"] + ".annot", zip, condition=ALL_CONDITIONS)
+    ALL_PEAKANNOT    = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".annot", zip, sample=ALL_SAMPLES)
 
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Local rules are rules that won't be submitted to the scheduler but executed in the current session (front-end or node)
 #-----------------------------------------------------------------------------------------------------------------------
-localrules: get_fastq_se, get_fastq_pe, filter_peaks_genrich, filter_peaks_genrich_merge, peaks, bams, all, all_server
+localrules: get_fastq_pe, filter_genrich, summits_genrich, all, all_server, get_peaks, get_peak_anno, get_summits, get_bams, get_bw, get_multiqc, get_fastqc, get_fingerprint
 
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -84,7 +86,7 @@ rule all_server:
 rule get_peaks:
     input: ALL_PEAKS + ALL_PEAKS_FILT
 
-rule get_peak_anno:
+rule get_peakanno:
     input: ALL_PEAKANNOT
 
 rule get_summits:
@@ -112,7 +114,7 @@ include: "rules/functions.smk"
 include: "rules/trimming.smk"
 include: "rules/align.smk"
 include: "rules/bam2bw.smk"
-include: "rules/genrich.smk"
+include: "rules/genrich2.smk"
 include: "rules/QC.smk"
 # include: "rules/prepare2GEO.smk
 

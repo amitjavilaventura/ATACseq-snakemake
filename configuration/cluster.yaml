@@ -55,9 +55,13 @@ macs2_callpeak:
 idr:
     cpu : 1
     MaxMem : 16
+
 GC_bias:
     cpu : 1
     MaxMem : 40
 
 multiQC:
     EmailNotice: "ae"
+
+genrich:
+    cpu : 1

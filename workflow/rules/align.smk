@@ -1,14 +1,14 @@
 # ----- Aligning with BOWTIE2 and processing with SAMTOOLS ----- #
 # Aligning with bowtie
 # Reomving PCR duplicates with samblaster
-# Sorting and indexing with samtool
+# Sorting and indexing with samtools
 
 rule align:
     input:
-        get_fq
+        get_fq,
     output:
-         bam   = "results/02_bam/{sample}.bam",
-         index = "results/02_bam/{sample}.bam.bai"
+        bam   = "results/02_bam/{sample}.bam",
+        index = "results/02_bam/{sample}.bam.bai"
     threads:
         CLUSTER["align"]["cpu"]
     params:
@@ -16,6 +16,7 @@ rule align:
         bowtie2 	 = config["params"]["bowtie2"]["global"],
         samblaster   = config["params"]["samblaster"],
         reads  	     = set_reads,
+        rm_chrM      = config["options"]["rm_chrM"],
         samtools_mem = config["params"]["samtools"]["memory"]
     message:
         "Aligning {input} with parameters {params.bowtie2}"
@@ -34,19 +35,6 @@ rule align:
         """
 
 
-rule genrich_sort:
-    input:
-       "results/02_bam/{sample}.bam",
-    output:
-        bam = temp("results/02_bam/{sample}.bam.tmp"),
-    threads:
-        CLUSTER["align"]["cpu"]
-    params:
-        samtools_mem = config["params"]["samtools"]["memory"],
-    log:
-        sort   = "results/00_log/genrich_sort/{sample}_bam_sort_genrich.log",
-    shell:
-        """
-        samtools sort -n -m {params.samtools_mem}G -@ {threads} -T {output.bam}.tmp -o {output.bam} {input} 2>> {log.sort}
-        """
+## add an option to remove chromosome M reads
 
+## add a rule for bam splitting.
