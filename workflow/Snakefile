@@ -77,7 +77,7 @@ localrules: get_fastq_pe, filter_genrich, summits_genrich, all, all_server, get_
 #-----------------------------------------------------------------------------------------------------------------------
 
 rule all:
-    input: ALL_PEAKANNOT + ALL_SUMMITS_FILT + MULTIQC + ALL_BIGWIG 
+    input: ALL_PEAKANNOT + ALL_SUMMITS + MULTIQC + ALL_BIGWIG 
 
 rule all_server:
     input: ALL_BW2SERVER

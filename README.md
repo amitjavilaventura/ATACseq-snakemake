@@ -1,6 +1,6 @@
 # Pasini's lab ATAC-seq pipeline for Snakemake
 
-**ONLY PAIRED END**. To use an ATAC-seq pipeline compatible with single-end, go to the [se_and_pe branch](https://github.com/amitjavilaventura/ATACseq-snakemake/tree/se_and_pe) (*not fully updated*).
+**ONLY PAIRED-END**. To use an ATAC-seq pipeline compatible with single-end, go to the [se_and_pe branch](https://github.com/amitjavilaventura/ATACseq-snakemake/tree/se_and_pe) (*not fully updated*).
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.9.1-brightgreen.svg)](https://snakemake.bitbucket.io)
 
@@ -10,6 +10,14 @@ Developers: [amitjavilaventura](https://github.com/amitjavilaventura) & [dfernan
 Snakemake-based ATAC-seq pipeline to be run in our PBS-based HPC using singularity containers. The singularity image that is used to run this pipeline is based in [this](https://github.com/amitjavilaventura/Dockerfiles/blob/main/atacseq_snakemake/Dockerfile) docker container.
 
 Many features from this pipeline have been retrieved from or are based in [*deferernandezperez*'s ChIPseq pipeline for Snakemake](https://github.com/dfernandezperez/ChIPseq-snakemake/tree/development), so if you have some doubts that are not solved in this readme file or in the comments within the code, you may find the solutions in th
+
+## Download
+
+To download this repository run in the terminal:
+
+`git clone https://github.com/amitjavilaventura/ATACseq-snakemake.git *empty_folder*`
+
+It is recommended that you download the [docker container](https://github.com/amitjavilaventura/Dockerfiles/blob/main/atacseq_snakemake/Dockerfile) as a singularity image using `singularity pull`.
 
 
 ## Setup
@@ -45,7 +53,7 @@ Here I am using lane1 and lane2 for consistency and making things more clear, bu
 | foo | potato | path/to/forward_lane1.fastq | path/to/reverse_lane1.fastq |
 | foo | checazzo | path/to/forward_lane2.fastq | path/to/reverse_lane2.fastq |
 
-* Finally the last 2 fields `fq1` and `fq2` correspond to the paths to the fastq files. `fq1` is the FORWARD read and  `fq2` the REVERSE. The order is very important because they will be sent in that order to the aligner.
+* Finally the last 2 fields `fq1` and `fq2` correspond to the paths to the fastq files. `fq1` is the FORWARD read and  `fq2` the REVERSE. The order is very important because they will be sent in that order to the aligner. Both `fq1` and `fq2` must be provided, because this pipeline is intended **for PAIRED-END only**. If you want a pipeline compatible with single end, you can go to the [*se_and_pe branch*](https://github.com/amitjavilaventura/ATACseq-snakemake/tree/se_and_pe), although it may not be fully updated.
 
 
 ### Sample metadata
@@ -114,8 +122,8 @@ Structure of the `configuration/config.yaml`:
 * `ref`: reference files (genome indexes...) used.
 * `options`: options for the pipeline. The ones available are:
 
-	+ `genrich_merge`: if you are working with replicates, setting this to True will make Genrich to call the peaks using the bam files of both replicates. The output will be narrowPeak file for the condition specified in `samples.tsv`. If False, a .narrowPeak file for each replicate will be generated.
-	+ The other options are not available yet.
+	+ `genrich_pool`: if you are working with replicates, setting this to True will make Genrich to call the peaks using the bam files of both replicates. The output will be narrowPeak file for the condition specified in `samples.tsv`. If False, a .narrowPeak file for each replicate will be generated.
+	+ `rm_chrM`: remove the reads mapping to the mitochondrial chromosome in the BAM files. *Not available yet*
 
 
 
@@ -149,15 +157,24 @@ is equivalent to
 ./execute_pipeline.sh
 ```
 
-If you want to obtain also broad peaks...
+At the end of the `configuration/Snakefile` you will find all the possible target rules and their corresponding output files:
 
-
-At the end of the `configuration/Snakefile` you will find all the possible target rules and their corresponding output files.
+* `all`: will do the alignment (BAMs), peak calling and summits (NarrowPeak and BEDs), peak annotation and quality control.
+* `get_peaks`: will generate the NarrowPeak files and the corresponding p-value filtered BEDs.
+* `get_peakanno`: will generate the annotated peaks from the p-value filtered BEDs.
+* `get_summits`: will generate the summits of the peaks and the filtered peaks.
+* `get_bams`: will generate the BAM files
+* `get_bw`: will generate the BIGWIG files from the BAMs.
+* `get_multiqc`: will do all the QC analyses and will generate a MultiQC report.
+* `get_fastqc`: will do a fastQC analysis.
+* `get_fingerprint`: will perform a QC with `plotFingerPrint` from `deepTools`.
 
 
 ## To Do's
 
+* Add an error message if forward and reverse fq files are not found
 * Migrate 100% to snakemake profiles and stop using the `cluster.yaml` configuration.
-* Add options to run replicate merging with `IDR` after the peak calling (two replicates max).
 * Add options to downsample the *bamfiles* by desired groups.
-* Adding the input-normalization of spike-in samples in case the input is provided.
+* Add options to remove chrM reads from bamfiles.
+* Add options to split bam files and call peaks from that files.
+* Adding the control/input option in Genrich in case it is provided.
