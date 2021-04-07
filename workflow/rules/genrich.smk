@@ -45,7 +45,6 @@ rule filter_peaks_genrich:
         bed_filt_nucleosomes = "results/03_genrich/{condition}/{condition}_peaks_nucleosomes_{threshold}{pqvalue}.bed",
         sum_filt_nucleosomes = "results/03_genrich/{condition}/{condition}_summits_nucleosomes_{threshold}{pqvalue}.bed"
     params:
-        log_pqval_filt = config["params"]["genrich"]["filt_peaks_pqval"],
         column_pqval   = lambda w: "8" if config["params"]["genrich"]["p_or_q"]== "p" else "9",
         readme         = "results/03_genrich/readme.txt",
     log:
@@ -53,11 +52,11 @@ rule filter_peaks_genrich:
     shell:
         """
         #------------------------------ NFR ------------------------------#
-        awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow_nfr} | cut -f1-4,8,9,10 > {output.bed_filt_nfr} 2> {log}
+        awk "\${params.column_pqval} >= {wildcards.threshold}" {input.narrow_nfr} | cut -f1-4,8,9,10 > {output.bed_filt_nfr} 2> {log}
         awk 'BEGIN {{OFS="\t"}}; {{print $1, $2+$7, $2+$7+1, $4, $5, $6 }}' {output.bed_filt_nfr} > {output.sum_filt_nfr}
 
         #------------------------------ Nucleosomes ------------------------------#
-        awk "\${params.column_pqval} >= {params.log_pqval_filt}" {input.narrow_nucl} | cut -f1-4,8,9,10 > {output.bed_filt_nucleosomes} 2> {log}
+        awk "\${params.column_pqval} >= {wildcards.threshold}" {input.narrow_nucl} | cut -f1-4,8,9,10 > {output.bed_filt_nucleosomes} 2> {log}
         awk 'BEGIN {{OFS="\t"}}; {{print $1, $2+$7, $2+$7+1, $4, $5, $6 }}' {output.bed_filt_nucleosomes} > {output.sum_filt_nucleosomes}
         """
 
@@ -91,7 +90,7 @@ rule peakAnnot_genrich:
             {output.annot_nfr} {output.promo_bed_targets_nfr} {output.promoTargets_nfr} {output.promoBed_nfr} \
             {output.distalBed_nfr} {params.genome} 2> {log}
 
-        Rscript --vanilla workflow/scripts/peakAnno.R {input.nfr} {params.before} {params.after}   \
+        Rscript --vanilla workflow/scripts/peakAnno.R {input.nucl} {params.before} {params.after}   \
             {output.annot_nucl} {output.promo_bed_targets_nucl} {output.promoTargets_nucl} {output.promoBed_nucl} \
             {output.distalBed_nucl} {params.genome} 2>> {log}
         """
