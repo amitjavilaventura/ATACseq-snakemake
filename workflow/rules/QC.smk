@@ -88,16 +88,6 @@ rule insert_size:
         HISTOGRAM_FILE={output.pdf} > {log}
         """
 
-# # # ----- Function set_read_extension() ----- #
-# # # This function will be used as parameter for the rule plotFingerprint.
-# # # The params.read_exten have to change from "--extendReads" to "set_read_extension()"
-# # # It will return --extendReads and, if the sample is single-end, it will return more parameters. 
-# # # To use when the snakemake pipeline is update to be used with both single-end and paired-end. Not now.
-# # def set_read_extension(wildcards):
-# #     if is_single_end(wildcards.sample):
-# #         return "--extendReads " + str(config['bam2bigwig']['read_extension'])
-# #     return "--extendReads"
-
 # # ------- Deeptools quality control ------- #
 rule plotFingerprint:
     input: 
@@ -108,23 +98,20 @@ rule plotFingerprint:
         plot        = "results/01_QCs/fingerPrint/{sample}.plot.pdf",
     log:
         "results/00_log/plotFingerprint/{sample}.log"
-    params:
-        read_exten = "--extendReads",
     threads:
-        CLUSTER["phantom_peak_qual"]["cpu"]
+        CLUSTER["plotFingerprint"]["cpu"]
     shell:
         """
         plotFingerprint -b {input} \
         -p {threads} \
         --outQualityMetrics {output.qualMetrics} \
         --outRawCounts {output.raw_counts} \
+        --extendReads \
         --plotFile {output.plot}
         """
 
 
 # ---------------- MultiQC report ----------------- #
-# if config["options"]["genrich_merge"] == False:
-
 rule multiQC_inputs:
     input:
         expand("results/00_log/align/{sample}.log", sample = ALL_SAMPLES),
@@ -133,7 +120,6 @@ rule multiQC_inputs:
         expand("results/00_log/align/rm_dup/{sample}.log", sample = ALL_SAMPLES),
         expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
         expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
-        #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
     output: 
         file = "results/01_QCs/multiQC/multiQC_inputs.txt"
     message:
@@ -159,42 +145,3 @@ rule multiQC:
         """
         multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
         """
-
-# elif config["options"]["genrich_merge"] == True:
-
-#     rule multiQC_inputs:
-#         input:
-#             expand("results/00_log/align/{sample}_align.log", sample = ALL_SAMPLES),
-#             expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample = ALL_SAMPLES),
-#             expand("results/01_QCs/insert_size/{sample}.isize.txt", sample = ALL_SAMPLES),
-#             expand("results/01_QCs/phantom_peak_qual/{sample}.spp.out", sample = ALL_SAMPLES),
-#             expand("results/00_log/align/{sample}_rm-dup.log", sample = ALL_SAMPLES),
-#             expand("results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv", zip, sample = ALL_SAMPLES),
-#             expand("results/01_QCs/fingerPrint/{sample}.rawcounts.tsv", zip, sample = ALL_SAMPLES),
-#             #expand("results/03_macs2/{sample}/{sample}_peaks.xls", zip, sample = ALL_SAMPLES) #this is done with genrich
-#         output: 
-#             file = "results/01_QCs/multiQC/multiQC_inputs_genrich_merge.txt"
-#         message:
-#             "create file containing all multiqc input files"
-#         run:
-#             with open(output.file, 'w') as outfile:
-#                 for fname in input:
-#                         outfile.write(fname + "\n")
-
-
-#     rule multiQC:
-#         input:
-#             "results/01_QCs/multiQC/multiQC_inputs_genrich_merge.txt"
-#         output: 
-#             "results/01_QCs/multiQC/multiQC_report_genrich_merge.html"
-#         params:
-#             log_name = "multiQC_report",
-#             folder   = "results/01_QCs/multiQC"
-#         log:
-#             "results/00_log/multiQC/multiQC.log"
-#         message:
-#             "multiQC for all logs"
-#         shell:
-#             """
-#             multiqc -o {params.folder} -l {input} -f -v -n {params.log_name} 2> {log}
-#             """

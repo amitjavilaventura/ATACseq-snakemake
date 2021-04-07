@@ -18,16 +18,23 @@ cluster: configuration/cluster.yaml
 # Just write the prefix-path where you want to put those files, or write '.' to have them in the workdir.
 # By now just fastq files will be located in this folder
 # IMPORTANT: if you have running multiple snakemake pipelines with the same tmp folder all the fastq files will be located togeter. Care with the sample names to not be repeated.
-tmp: /hpcnfs/scratch/temporary/.atacmitji
+tmp: /hpcnfs/scratch/temporary/.econway_atac
+
+
+options:
+  # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
+  genrich_merge: True
+  # perform trimming: false or true
+  # if true go to params (next section)
+  # to set desired trimming parameters
+  trimming: false
 
 # Parameters for the software used
 params:
-  
   # Bowtie2 params
   bowtie2: 
-    # https://www.protocols.io/view/cut-amp-tag-data-processing-and-analysis-tutorial-bjk2kkye.html
     global: "--local --very-sensitive --no-mixed --no-discordant --phred33"
-    pe: "-I 10 -X 700"
+    pe: "-X 1000"
 
   # Samblaster by default just mark duplicates but doesn't remove them. To remove pcr duplicates add --removeDups here.
   samblaster: "--removeDups"
@@ -44,20 +51,16 @@ params:
     pe: "-Q -L --detect_adapter_for_pe"
 
   genrich:
-    path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
-    pe_or_se: "se"  # wether the samples are single-end or paired end. One of "se" or "pe"
-    se: "-y -d 150" # parameters for peak calling if samples are single-end
     p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
-    pqval: 5e-4 #q- or p- value that will be use as threshold (depends on p_or_q param)
-    filt_peaks_pqval: "5" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
-    chrM: "-e chrM" # to get rid of the reads mapping in the mitochondrial chromosome. either "-e chrM" or ""
-    rm_pcr_dups: "" # to remove PCR duplicates; either "" or "-r". Default is "" since PCR dups are removed in the aligning step
+    pqval: 0.01 #q- or p- value that will be use as threshold (depends on p_or_q param)
+    filt_peaks_pqval: "2" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
 
   # Bam2bigwig params
   bam2bigwig:
     read_extension: 200
     other: "--binSize 50"
     
+
 # Determine the region corresponding to promoters around TSS
 promoter:
   # After TSS
@@ -65,39 +68,17 @@ promoter:
   # Before TSS
   bTSS: 2500
 
+
 # Reference files and parameters for mm10 mouse genome version.
 ref:
+  # Genome version (used for peak annotation). Option: mm9, mm10, hg19, hg38
+  genome: "mm10"
   # Bowtie index for the alignment of the sample
   index: /hpcnfs/techunits/bioinformatics/refdata/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
-  # Bowtie index for the alignmed of the spike-in, if there is
-  index_spike: /hpcnfs/data/DP/dm6/dm6
-  # File required by computeGCbias from deeptools
-  2bit: /hpcnfs/data/DP/Databases/mm10.2bit
-  # Used in computeGCbias to ignore repetitive regions in the calculation
-  rep_masker: /hpcnfs/data/DP/Databases/RepeatMasker_noRandom_mm10.bed
+  # Nomenclature of mithocondrial chromosome (chrM UCSC, M ensembl)
+  chrM_name: "chrM"
   # File required by bdg2bigwig from ucsc
   chr_sizes: /hpcnfs/data/DP/Databases/mm10.chrom.sizes
-  # https://deeptools.readthedocs.io/en/latest/content/feature/effectiveGenomeSize.html
-  # 2304947926 --> mm9
-  # 2308125349 --> mm10
-  egenome_size: 2308125349
-
-options:
-  # merge within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
-  genrich_merge: True
-  ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
-  # merge replicate samples with IDR when calling peaks with macs2: True or False
-  idr_merge: False
-  # to merge Bams: True or False. This is useful when working with different replicates and plotting Heatmaps that require the signal in the bw.. etc.
-  merge_bams: False
-  # do downsample or not: True or False.
-  downsample: False
-  # get rid of reads mapping in the chrM (from the bamfiles): True or False.
-  no_chrM: False
-  # perform trimming: false or true
-  # if true go to params (at the end)
-  # to set desired trimming parameters
-  trimming: false
 
 
   

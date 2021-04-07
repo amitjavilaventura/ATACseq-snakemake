@@ -36,7 +36,7 @@ rule mergeFastq_pe:
         fastq1 = temp("{tmp}/fastq/{{sample}}.1.fastq.gz".format(tmp=config["tmp"])),
         fastq2 = temp("{tmp}/fastq/{{sample}}.2.fastq.gz".format(tmp=config["tmp"]))
     log:
-        "results/00_log/fastp/{sample}.log"
+        "results/00_log/mergeFastq_pe/{sample}.log"
     message:
         "Merging fastq files from {input}"
     shell:
@@ -52,7 +52,7 @@ rule mergeFastq_se:
     output:
         temp("{tmp}/fastq/{{sample}}.se.fastq.gz".format(tmp=config["tmp"]))
     log:
-        "results/00_log/fastp/{sample}.log"
+        "results/00_log/mergeFastq_se/{sample}.log"
     message:
         "Merging fastq files from {input}"
     shell:

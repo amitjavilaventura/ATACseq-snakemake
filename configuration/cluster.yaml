@@ -8,7 +8,7 @@ __default__ :
     jname       : "{rule}"
     output      : "results/.clusterLogs/{rule}.{wildcards}.out"
     error       : "results/.clusterLogs/{rule}.{wildcards}.err"
-    MaxMem      : 8
+    MaxMem      : 6
     queue       : "workq"
 
 fastp_se :
@@ -27,14 +27,14 @@ fastqc:
     cpu : 1
 
 align:
-    cpu : 10
-    MaxMem : 40
+    cpu : 4
+    MaxMem : 25
 
-align_spike:
-    cpu : 10
-    MaxMem : 40
+genrich_sort:
+    cpu : 1
+    MaxMem : 8
 
-phantom_peak_qual:
+split_bam:
     cpu : 1
 
 plotFingerprint:
@@ -48,13 +48,11 @@ bam2bigwig_noSubstract:
     cpu : 1
     MaxMem : 10
 
-macs2_callpeak:
+genrich:
     EmailNotice: "ae"
     cpu : 1
+    MaxMem: 20
 
-idr:
-    cpu : 1
-    MaxMem : 16
 GC_bias:
     cpu : 1
     MaxMem : 40
