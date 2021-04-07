@@ -27,7 +27,7 @@ ALL_CONDITIONS = set(SAMPLES.CONDITION)
 
 
 # ----- Determine output files ----- #
-ALL_PEAKANNOT     = expand("results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}.annot", condition = ALL_CONDITIONS, ctype = ['nfr', 'nucleosomes'], threshold = config["params"]["genrich"]["filt_peaks_pqval"], pqvalue = config["params"]["genrich"]["p_or_q"])
+ALL_PEAKANNOT     = expand("results/04_peakAnno/{condition}/{condition}_peaks_{ftype}_{threshold}{pqvalue}.annot", condition = ALL_CONDITIONS, ftype = ['nfr', 'nucleosomes'], threshold = config["params"]["genrich"]["filt_peaks_pqval"], pqvalue = config["params"]["genrich"]["p_or_q"])
 ALL_BIGWIG        = expand("results/05_bigwig/{sample}_{ftype}.bw", sample = ALL_SAMPLES, ftype = ['nfr', 'nucleosomes'])
 ALL_BIGWIG_merged = expand("results/05_bigwig/merged/{condition}_{ftype}_merged.bw", condition = ALL_CONDITIONS, ftype = ['nfr', 'nucleosomes'])
 ALL_BW2SERVER     = expand("results/temp_file_{sample}.txt", sample = ALL_SAMPLES)

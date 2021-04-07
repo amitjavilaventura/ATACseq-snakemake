@@ -53,7 +53,13 @@ params:
   genrich:
     p_or_q: "p" #either "p" (for pvalue filtering) or "q" (for qvalue threshold)
     pqval: 0.01 #q- or p- value that will be use as threshold (depends on p_or_q param)
-    filt_peaks_pqval: "2" # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
+    filt_peaks_pqval: 
+        - 2
+        - 6
+        - 8
+        - 10
+        - 15
+        - 20  # minumum -log10(qvalue) value that will be use to filter peaks after peak calling
 
   # Bam2bigwig params
   bam2bigwig:

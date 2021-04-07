@@ -64,13 +64,19 @@ rule filter_peaks_genrich:
 
 rule peakAnnot_genrich:
     input:
-        rules.filter_peaks_genrich.output.bed_filt_nfr,
+        nfr  = rules.filter_peaks_genrich.output.bed_filt_nfr,
+        nucl = rules.filter_peaks_genrich.output.bed_filt_nucleosomes,
     output:
-        annot             = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}.annot",
-        promo_bed_targets = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_promoTargets.bed",
-        promoTargets      = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_promoTargets.txt",
-        promoBed          = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_promoPeaks.bed",
-        distalBed         = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_distalPeaks.bed",
+        annot_nfr              = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}.annot",
+        promo_bed_targets_nfr  = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_promoTargets.bed",
+        promoTargets_nfr       = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_promoTargets.txt",
+        promoBed_nfr           = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_promoPeaks.bed",
+        distalBed_nfr          = "results/04_peakAnno/{condition}/{condition}_peaks_nfr_{threshold}{pqvalue}_distalPeaks.bed",
+        annot_nucl             = "results/04_peakAnno/{condition}/{condition}_peaks_nucleosomes_{threshold}{pqvalue}.annot",
+        promo_bed_targets_nucl = "results/04_peakAnno/{condition}/{condition}_peaks_nucleosomes_{threshold}{pqvalue}_promoTargets.bed",
+        promoTargets_nucl      = "results/04_peakAnno/{condition}/{condition}_peaks_nucleosomes_{threshold}{pqvalue}_promoTargets.txt",
+        promoBed_nucl          = "results/04_peakAnno/{condition}/{condition}_peaks_nucleosomes_{threshold}{pqvalue}_promoPeaks.bed",
+        distalBed_nucl         = "results/04_peakAnno/{condition}/{condition}_peaks_nucleosomes_{threshold}{pqvalue}_distalPeaks.bed",
     params:
         before = config["promoter"]["bTSS"],
         after  = config["promoter"]["aTSS"],
@@ -81,7 +87,11 @@ rule peakAnnot_genrich:
         "Annotating peaks for {wildcards.condition}"
     shell:
         """
-        Rscript --vanilla workflow/scripts/peakAnno.R {input} {params.before} {params.after}   \
-            {output.annot} {output.promo_bed_targets} {output.promoTargets} {output.promoBed} \
-            {output.distalBed} {params.genome} 2> {log}
+        Rscript --vanilla workflow/scripts/peakAnno.R {input.nfr} {params.before} {params.after}   \
+            {output.annot_nfr} {output.promo_bed_targets_nfr} {output.promoTargets_nfr} {output.promoBed_nfr} \
+            {output.distalBed_nfr} {params.genome} 2> {log}
+
+        Rscript --vanilla workflow/scripts/peakAnno.R {input.nfr} {params.before} {params.after}   \
+            {output.annot_nucl} {output.promo_bed_targets_nucl} {output.promoTargets_nucl} {output.promoBed_nucl} \
+            {output.distalBed_nucl} {params.genome} 2>> {log}
         """
