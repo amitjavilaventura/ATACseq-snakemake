@@ -12,7 +12,7 @@
 
 rule sortbam_genrich:
     input:
-       rules.align.output.bam,
+       "results/02_bam/{sample}_noChrM.bam" if config["options"]["rm_chrM"] else "results/02_bam/{sample}.bam",
     output:
         bam = temp("results/02_bam/{sample}.bam.tmp"),
     threads:

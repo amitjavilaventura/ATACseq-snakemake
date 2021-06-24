@@ -24,7 +24,6 @@ rule align:
     log:
        align   = "results/00_log/align/{sample}.log",
        rm_dups = "results/00_log/align/rm_dup/{sample}.log",
-       noChrM  = "results/00_log/align/noChrM/{sample}.log",
     benchmark:
         "results/.benchmarks/{sample}.align.benchmark.txt"
     shell:
@@ -41,14 +40,15 @@ rule align:
 
         """
 
-### Remove mitochondrial chromosome and change name of the BAMS in order to be able to have the filtered BAMS with the same name as the original
+### Remove mitochondrial chromosome and change name of the BAMS in order to be 
+###   able to have the filtered BAMS with the same name as the original.
 if config["options"]["rm_chrM"]:
     rule remove_chrM:
         input:
-            bam = "results/02_bam/{sample}.bam"
+            bam = rules.align.output.bam
         output:
-            bam_filt = "results/02_bam/{sample}_noMT.bam",
-            bam_indx = "results/02_bam/{sample}_noMT.bam.bai"
+            bam_filt = temp("results/02_bam/{sample}_noChrM.bam"),
+            bam_indx = temp("results/02_bam/{sample}_noChrM.bam.bai"),
         log:
             log = "results/00_log/remove_mt/{sample}"
         params:
@@ -58,13 +58,4 @@ if config["options"]["rm_chrM"]:
             # remove reads mapping to chromosome M 
             samtools view -h {input} | fgrep -w -v {params.chrM_name} | samtools view -b > {output.bam_filt} 2> {log}
             samtools index {output.bam_filt}
-            
-            # change name of the filtered bams to the original name
-            # put original BAMS into another folther
-            mkdir -p NoFiltered
-            mv {input} results/02_bam/noFiltered/
-            mv {input}.bai results/02_bam/noFiltered/
-
-            mv {output.bam_filt} {input}
-            mv {output.bam_indx} {input}.bai
             """

@@ -6,8 +6,8 @@
 if config["options"]["splitBam"]:
     rule split_bam:
         input:
-            bam   = "results/02_bam/{sample}.bam",
-            index = "results/02_bam/{sample}.bam.bai",
+            bam   = "results/02_bam/{sample}_noChrM.bam" if config["options"]["rm_chrM"] else "results/02_bam/{sample}.bam",
+            index = "results/02_bam/{sample}_noChrM.bam.bai" if config["options"]["rm_chrM"] else "results/02_bam/{sample}.bam.bai",
         output:
             nfr     = "results/02_bam/splitBam/nfr/{sample}_NFR.bam",
             nuc     = "results/02_bam/splitBam/nuc/{sample}_NUC.bam",
