@@ -68,13 +68,12 @@ elif config["options"]["genrich_pool"] == False:
     ALL_PEAKANNOT    = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".annot", zip, sample=ALL_SAMPLES)
 
 # Define outputs for splitBams
-if config["options"]["splitBam"]:
-    if config["options"]["genrich_pool"]:
-        NFR_PEAKS     = expand("results/03_genrich/splitBam/pooled/{condition}/{condition}_NFR_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
-        NUC_PEAKS     = expand("results/03_genrich/splitBam/pooled/{condition}/{condition}_NUC_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
-    else:
-        NFR_PEAKS     = expand("results/03_genrich/splitBam/{sample}/{sample}_NFR_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
-        NUC_PEAKS     = expand("results/03_genrich/splitBam/{sample}/{sample}_NUC_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+if config["options"]["genrich_pool"]:
+    NFR_PEAKS     = expand("results/03_genrich/splitBam/pooled/{condition}/{condition}_NFR_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+    NUC_PEAKS     = expand("results/03_genrich/splitBam/pooled/{condition}/{condition}_NUC_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+else:
+    NFR_PEAKS     = expand("results/03_genrich/splitBam/{sample}/{sample}_NFR_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+    NUC_PEAKS     = expand("results/03_genrich/splitBam/{sample}/{sample}_NUC_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Local rules are rules that won't be submitted to the scheduler but executed in the current session (front-end or node)

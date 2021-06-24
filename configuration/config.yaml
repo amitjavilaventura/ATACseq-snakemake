@@ -52,7 +52,7 @@ ref:
 options:
   # split the BAM file into nucleosome-free regions and nucleosome regions using alignmentSieve from deeptools
   # also call peaks from the separated bamfiles separately usign genrich
-  splitBam: True
+  splitBam: False
   # pool replicates within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
   genrich_pool: True
   ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
