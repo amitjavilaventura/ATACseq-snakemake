@@ -12,11 +12,11 @@
 
 rule sortbam_genrich:
     input:
-       "results/02_bam/{sample}.bam",
+       rules.align.output.bam,
     output:
         bam = temp("results/02_bam/{sample}.bam.tmp"),
     threads:
-        CLUSTER["align"]["cpu"]
+        CLUSTER["genrich_sort"]["cpu"]
     params:
         samtools_mem = config["params"]["samtools"]["memory"],
     log:
@@ -29,7 +29,9 @@ rule sortbam_genrich:
 
 rule genrich:
 	input:
-		t = lambda w: expand("results/02_bam/{condition}.bam.tmp", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME) if config["options"]["genrich_pool"] else "results/02_bam/{sample}.bam.tmp",
+		# if config["options"]["genrich_pool"] is true, it calls the all the bamfiles in each condition, if it's false, it calls each bamfile individually
+		# if config["options"]["rm_chrM"] is true, calls the bam file without chromosome reads, else it will call the original bam (have in mind that only one is creeated in the alignment step)
+		t = lambda w: expand("results/02_bam/{condition}.bam.tmp", condition = SAMPLES.loc[SAMPLES["CONDITION"] == w.condition].NAME) if config["options"]["genrich_pool"] else "results/02_bam/{sample}.bam.tmp"
 	output:
 		"results/03_genrich/" + "pooled/{condition}/{condition}_peaks.narrowPeak" if config["options"]["genrich_pool"] else "{sample}/{sample}_peaks.narrowPeak",
 	params:
@@ -61,6 +63,8 @@ rule genrich:
 		
 		# Genrich peak calling 
 		
+		This folder contains the peak called from the complete BAM files. 
+
 		## Inputs
 
 		{input.t}
@@ -71,9 +75,14 @@ rule genrich:
 
 		## Params
 
-		* ATAC mode: {params.atacmode}
+		* ATAC mode: {params.atacmode}. 
+		
+			+ If the ATAC mode is on (-j), it will mean that the fragments in the BAM correspond to the Tn5-cutting sites, which means that all the peaks called correspond to open chromatin regions. 
+			+ If you want the NFR and NUC regions separately, try setting config["options"]["splitBam"] to True. The peaks from the complete BAM will be still called. 
 
 		* Use unmatched reads: {params.unmatch}
+
+			+ Unmatched reads (-y) should be used in case that ATAC mode (-j) is used. Otherways, feel free to use it or not.
 
 		* p- or q-value: {params.p_or_q} -> {params.pqval}
 

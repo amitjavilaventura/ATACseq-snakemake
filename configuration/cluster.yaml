@@ -27,12 +27,15 @@ fastqc:
     cpu : 1
 
 align:
-    cpu : 10
-    MaxMem : 40
+    cpu : 6
+    MaxMem : 30
 
-align_spike:
-    cpu : 10
-    MaxMem : 40
+split_bam:
+    cpu : 1
+
+genrich_sort:
+    cpu : 1
+    MaxMem : 8
 
 phantom_peak_qual:
     cpu : 1

@@ -34,8 +34,10 @@ ALL_CONDITIONS = set(SAMPLES.CONDITION)
 
 
 # ----- Determine output files ----- #
-ALL_BAMs         = expand("results/02_bam/{sample}.bam", sample=ALL_SAMPLES)
-
+if config["options"]["rm_chrM"]:
+    ALL_BAMs     = expand("results/02_bam/{sample}_noChrM.bam", sample=ALL_SAMPLES)
+else:
+    ALL_BAMs     = expand("results/02_bam/{sample}.bam", sample=ALL_SAMPLES)
 
 ALL_FASTQCs      = expand("results/01_QCs/fastQC/{sample}_fastqc.zip", sample=ALL_SAMPLES)
 ALL_FINGERPRINT  = expand("results/01_QCs/fingerPrint/{sample}.plot.pdf", sample = ALL_SAMPLES)
@@ -65,19 +67,31 @@ elif config["options"]["genrich_pool"] == False:
 
     ALL_PEAKANNOT    = expand("results/04_peakAnno/{sample}/{sample}-peaks_log" + config["params"]["genrich"]["p_or_q"] + config["params"]["genrich"]["filt"] + ".annot", zip, sample=ALL_SAMPLES)
 
+# Define outputs for splitBams
+if config["options"]["splitBam"]:
+    if config["options"]["genrich_pool"]:
+        NFR_PEAKS     = expand("results/03_genrich/splitBam/pooled/{condition}/{condition}_NFR_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+        NUC_PEAKS     = expand("results/03_genrich/splitBam/pooled/{condition}/{condition}_NUC_peaks.narrowPeak", zip, condition=ALL_CONDITIONS)
+    else:
+        NFR_PEAKS     = expand("results/03_genrich/splitBam/{sample}/{sample}_NFR_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
+        NUC_PEAKS     = expand("results/03_genrich/splitBam/{sample}/{sample}_NUC_peaks.narrowPeak", zip, sample=ALL_SAMPLES)
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Local rules are rules that won't be submitted to the scheduler but executed in the current session (front-end or node)
 #-----------------------------------------------------------------------------------------------------------------------
-localrules: get_fastq_pe, filter_genrich, summits_genrich, all, all_server, get_peaks, get_peak_anno, get_summits, get_bams, get_bw, get_multiqc, get_fastqc, get_fingerprint
+localrules: get_fastq_pe, filter_genrich, summits_genrich, all, all_server, get_peaks, get_peakanno, get_summits, get_bams, get_bw, get_multiqc, get_fastqc, get_fingerprint
 
 
 #-----------------------------------------------------------------------------------------------------------------------
 # Define multiple outputs based on the output files desired
 #-----------------------------------------------------------------------------------------------------------------------
 
-rule all:
-    input: ALL_PEAKANNOT + ALL_SUMMITS + MULTIQC + ALL_BIGWIG 
+if config["options"]["splitBam"]:
+    rule all:
+        input: ALL_PEAKANNOT + ALL_SUMMITS + MULTIQC + ALL_BIGWIG + NUC_PEAKS + NFR_PEAKS
+else:
+    rule all:
+        input: ALL_PEAKANNOT + ALL_SUMMITS + MULTIQC + ALL_BIGWIG
 
 rule all_server:
     input: ALL_BW2SERVER
@@ -91,6 +105,10 @@ rule get_peakanno:
 
 rule get_summits:
     input: ALL_SUMMITS + ALL_SUMMITS_FILT
+
+# splitBam rules
+rule split_bams:
+    input: NFR_PEAKS + NUC_PEAKS
 
 # bam bw rules
 rule get_bams:
@@ -114,6 +132,7 @@ include: "rules/functions.smk"
 include: "rules/trimming.smk"
 include: "rules/align.smk"
 include: "rules/bam2bw.smk"
+include: "rules/splitbam.smk"
 include: "rules/genrich2.smk"
 include: "rules/QC.smk"
 # include: "rules/prepare2GEO.smk

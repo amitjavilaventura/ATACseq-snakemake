@@ -68,7 +68,7 @@ rule fastqc:
 # # ------- InsertSize calculation ------- #
 rule insert_size:
     input:
-        "results/02_bam/{sample}.bam"
+        unpack(get_bam),
     output:
         txt="results/01_QCs/insert_size/{sample}.isize.txt",
         pdf="results/01_QCs/insert_size/{sample}.isize.pdf"
@@ -84,7 +84,7 @@ rule insert_size:
         # Create the outfiles to handle
         touch {output}
         picard CollectInsertSizeMetrics {params} \
-        INPUT={input} OUTPUT={output.txt} \
+        INPUT={input.case} OUTPUT={output.txt} \
         HISTOGRAM_FILE={output.pdf} > {log}
         """
 
@@ -101,7 +101,7 @@ rule insert_size:
 # # ------- Deeptools quality control ------- #
 rule plotFingerprint:
     input: 
-        case      = "results/02_bam/{sample}.bam", 
+        unpack(get_bam)
     output: 
         qualMetrics = "results/01_QCs/fingerPrint/{sample}.qualityMetrics.tsv",
         raw_counts  = "results/01_QCs/fingerPrint/{sample}.rawcounts.tsv",
@@ -114,7 +114,7 @@ rule plotFingerprint:
         CLUSTER["phantom_peak_qual"]["cpu"]
     shell:
         """
-        plotFingerprint -b {input} \
+        plotFingerprint -b {input.case} \
         -p {threads} \
         --outQualityMetrics {output.qualMetrics} \
         --outRawCounts {output.raw_counts} \

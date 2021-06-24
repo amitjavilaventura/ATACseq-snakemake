@@ -25,6 +25,8 @@ tmp: /hpcnfs/scratch/temporary/.atacmitji
 ref:
   # Genome used
   genome: mm10
+  # ChrM name to remove it
+  chrM_name: chrM
   # Determine the region corresponding to promoters around TSS
   promoter:
     # After TSS
@@ -48,10 +50,13 @@ ref:
 
 
 options:
+  # split the BAM file into nucleosome-free regions and nucleosome regions using alignmentSieve from deeptools
+  # also call peaks from the separated bamfiles separately usign genrich
+  splitBam: True
   # pool replicates within peak calling with Genrich, only if peakcaller is set to "genrich": True or False
   genrich_pool: True
   ### THE FOLLOWING OPTIONS ARE NOT ENABLED YET, SO IF YOU SET THEM TO True IT WON'T HAPPEN ANYTHING.
-  # get rid of reads mapping in the chrM (from the bamfiles): True or False.
+  # get rid of reads mapping in the chrM (from the bamfiles): true or false. It will be read in bash
   rm_chrM: True  # not able yet
   # to downsample the bam files per groups
   downsample: False  # not able yet
@@ -83,6 +88,12 @@ params:
   fastp:
     se: "-Q -L"
     pe: "-Q -L --detect_adapter_for_pe"
+
+  splitbam:
+    # To split the bam using alignmentSieve from deeptools
+    # Fragments below this length will be considered as nucleosome free regions
+    # Fragments above this length will be considered as nucleosome regions
+    nfr_length: 150 
 
   genrich: #https://github.com/jsh58/Genrich
     #path: "/hpcnfs/data/DP/amitjavila/software/Genrich/Genrich"
