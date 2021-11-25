@@ -1,5 +1,7 @@
 # Pasini's lab ATAC-seq pipeline for Snakemake
 
+_**This pipeline is not maintained**_
+
 **SplitBam does not work**
 
 **ONLY PAIRED-END**. To use an ATAC-seq pipeline compatible with single-end, go to the [se_and_pe branch](https://github.com/amitjavilaventura/ATACseq-snakemake/tree/se_and_pe) (*not fully updated*).
