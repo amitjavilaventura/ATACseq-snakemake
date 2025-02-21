@@ -1,4 +1,4 @@
-# Pasini's lab ATAC-seq pipeline for Snakemake
+# ATAC-seq pipeline for Snakemake
 
 _**This pipeline is not maintained**_
 
